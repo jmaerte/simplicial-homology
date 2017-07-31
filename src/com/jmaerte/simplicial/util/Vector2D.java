@@ -5,12 +5,12 @@ package com.jmaerte.simplicial.util;
  */
 public class Vector2D <T,K> {
 
-    public T t;
-    public K k;
+    public T x;
+    public K y;
 
-    public Vector2D(T t, K k) {
-        this.t = t;
-        this.k = k;
+    public Vector2D(T x, K y) {
+        this.x = x;
+        this.y = y;
     }
 
 }

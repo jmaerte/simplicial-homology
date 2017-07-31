@@ -68,7 +68,6 @@ public class Simplicial {
             smithCache[0] = smithCache[1];
             smithCache[1] = matrix.smith();
 //            System.out.println(matrix.register);
-            System.out.println(matrix);
             cache[0] = cache[1];
             cache[1] = new SetList<>();
         }
