@@ -1,96 +1,170 @@
 package com.jmaerte.simplicial.util;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.*;
 
 /**
  * Created by Julian on 22/06/2017.
  */
 public class SparseMatrix {
 
-    public HashMap<Integer, LinkedList<Pointer>> register;
-    public ArrayList<Integer> content;
     int n, m;
+    MatrixNode[] rows;
+    MatrixNode[] cols;
+    int[] rowOcc;
+    int[] colOcc;
 
     public SparseMatrix(int n, int m) {
         this.n = n;
         this.m = m;
-        register = new HashMap<>(n);
-        content = new ArrayList<>();
+        rows = new MatrixNode[n];
+        cols = new MatrixNode[m];
+        for(int i = 0; i < n; i++) {
+            MatrixNode temp = new MatrixNode(i, -1, 0, null, null, null, null);
+            temp.right = new MatrixNode(i, m, 0, temp, null, null, null);
+            rows[i] = temp;
+        }
+        for(int j = 0; j < m; j++) {
+            MatrixNode temp = new MatrixNode(-1, j, 0, null, null, null, null);
+            temp.down = new MatrixNode(n, j, 0, null, null, temp, null);
+            cols[j] = temp;
+        }
+        rowOcc = new int[n];
+        colOcc = new int[m];
     }
 
-
-
-    private class Pointer implements Comparable<Pointer> {
-        int value, pointer;
-        Pointer(int value, int pointer) {
-            this.value = value;
-            this.pointer = pointer;
+    public void set(int i, int j, int value) {
+        MatrixNode row = rows[i].right;
+        while(row.j <= j) {
+            row = row.right;
         }
-
-        public int compareTo(Pointer p) {
-            return value - p.value;
+        MatrixNode col = cols[j].down;
+        while(col.i <= i) {
+            col = col.down;
         }
-
-        public String toString() {
-            return "{v:" + value + ", p: " + pointer + "}";
-        }
+        MatrixNode node = new MatrixNode(i,j,value, row.left, row, col.up, col);
+        col.left.right = node;
+        col.left = node;
+        row.up.down = node;
+        row.up = node;
+        rowOcc[i]++;
+        colOcc[j]++;
     }
 
-    public void set(int i, int j, int content) throws ArrayIndexOutOfBoundsException {
-        if(i > n) throw new ArrayIndexOutOfBoundsException();
-        if(j > m) throw new ArrayIndexOutOfBoundsException();
-        LinkedList<Pointer> cols = register.get(i);
-        if(cols == null) {
-            LinkedList<Pointer> list = new LinkedList();
-            list.add(new Pointer(j, this.content.size()));
-            this.content.add(content);
-            register.put(i, list);
-        } else {
-            Iterator<Pointer> it = cols.iterator();
-            while(it.hasNext()) {
-                Pointer next = it.next();
-                if(next.value == j) {
-                    this.content.set(next.pointer, content);
-                    return;
+    public Number[] smith() {
+        ArrayList<Number> resultList = new ArrayList<>();
+
+        int g = gaussian();
+        for(int i = 0; i < g; i++) {
+            resultList.add(1);
+        }
+
+        Number[] result = new Number[resultList.size()];
+        for(int i = 0; i < result.length; i++) result[i] = resultList.get(i);
+        return result;
+    }
+
+    private int gaussian() {
+        int ones = 0;
+        for(int j = 0; j < m; j++) {
+            MatrixNode col = cols[j].down;
+            ArrayList<Integer> pivotRows = new ArrayList<>();
+            while(col.i != n) {
+                if(col.left.j != -1) {
+                    col = col.down;
+                    continue;
                 }
+                if(col.value.equals(1) || col.value.equals(-1)) {
+                    pivotRows.add(col.i);
+                }
+                col = col.down;
             }
-            cols.add(new Pointer(j, this.content.size()));
-            this.content.add(content);
+            if(!pivotRows.isEmpty()) {
+                int pivotRow = -1;
+                for(int i : pivotRows) {
+                    if(pivotRow < 0) pivotRow = i;
+                    else if(rowOcc[pivotRow] > rowOcc[i]) pivotRow = i;
+                }
+                swapRows(pivotRow, ones);
+                ones++;
+                //TODO: Print the ones done with gaussian elimination.
+                //TODO Eliminate the whole column j.
+                MatrixNode node = cols[j].down;
+                MatrixNode pivot = rows[pivotRow].right;
+                while(node.i != n) {
+                    if(node.i != pivotRow) addRows(pivotRow, node.i, -node.value.intValue()/pivot.value.intValue());
+                    node = node.down;
+                }
+            }else {
+                //TODO Add j to the still todo columns.(Swap it to the end)
+            }
+        }
+        return ones;
+    }
+
+    private void swapRows(int i, int k) {
+        //TODO
+        MatrixNode node = rows[i].right;
+        while(node.j != m) {
+            node.up.down = node.down;
+            node.down.up = node.up;
+            node.i = k;
+            node = node.right;
+        }
+        node = rows[k].right;
+        while(node.j != m) {
+            node.up.down = node.down;
+            node.down.up = node.up;
+            node.i = i;
+            node = node.right;
+        }
+        node = rows[i];
+        rows[i] = rows[k];
+        rows[k] = node;
+        rows[k].i = k;
+        rows[i].i = i;
+        node = node.right;
+        while(node.j != m) {
+            MatrixNode curr = cols[node.j];
+            while(curr.i <= k) {
+                curr = curr.down;
+            }
+            node.down = curr;
+            node.up = curr.up;
+            curr.up.down = node;
+            curr.up = node;
+            node = node.right;
+        }
+        node = rows[i].right;
+        while(node.j != m) {
+            MatrixNode curr = cols[node.j];
+            while(curr.i <= i) {
+                curr = curr.down;
+            }
+            node.down = curr;
+            node.up = curr.up;
+            curr.up.down = node;
+            curr.up = node;
+            node = node.right;
         }
     }
 
-    /** Gets the position where to put in the Element element and returns a vector with the boolean value, if its already
-     * in aswell as the index where element lays.
-     * @param list
-     * @param element
-     * @param <T>
-     * @return
-     */
-    private <T extends Comparable<T>> Vector2D<Boolean, Integer> getSortedIndex(LinkedList<T> list, T element, int from, int to) {
-        int k = from;
-        int pos;
-        boolean isIn = false;
-        while(k < to) {
-            T curr = list.get(k);
-            if(curr.compareTo(element) == 0) {
-                return new Vector2D<>(true, k);
-            }else if(curr.compareTo(element) > 0) {
-                return new Vector2D<>(false, k);
-            }
-            k++;
+    public void addRows(int i, int k, int lambda) {
+
+    }
+
+    private class MatrixNode {
+        MatrixNode left, right, up, down;
+        Number value;
+        int i, j;
+
+        public MatrixNode(int i, int j, Number value, MatrixNode left, MatrixNode right, MatrixNode up, MatrixNode down) {
+            this.i = i;
+            this.j = j;
+            this.value = value;
+            this.left = left;
+            this.right = right;
+            this.up = up;
+            this.down = down;
         }
-        return new Vector2D<>(false, -1);
-    }
-
-
-    public int[] smith() {
-        return null;
-    }
-
-    private boolean linearDependent(int i, int j, boolean row) {
-        return true;
     }
 }
