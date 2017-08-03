@@ -4,13 +4,7 @@ import com.jmaerte.io.IO;
 import com.jmaerte.io.Logger;
 import com.jmaerte.simplicial.Simplicial;
 import com.jmaerte.simplicial.util.Complex;
-import com.jmaerte.simplicial.util.Matrix;
-import com.jmaerte.simplicial.util.Wrapper;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
+import com.jmaerte.simplicial.util.SparseMatrix;
 
 /**
  * Created by Julian on 17/06/2017.
@@ -77,14 +71,12 @@ public class Homology {
 //        }
         // Loading Options. For more information take a look at Readme.md.
 
-        Matrix matrix = new Matrix(4,3);
+        SparseMatrix matrix = new SparseMatrix(4,3);
         for(int i = 0; i < 4*3; i++) {
-            matrix.set(i/3, i - 3*i/3, i+1);
+            matrix.set(i/3, i%3, i+1);
         }
-        int[] sol = matrix.smith();
-        for(int i : sol) {
-            System.out.println(i);
-        }
+        System.out.println(matrix);
+        matrix.smith();
 
         for(int i = 0; i < args.length; i++) {
             if(args[i].length() > 0) {

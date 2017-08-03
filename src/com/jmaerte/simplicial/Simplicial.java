@@ -1,8 +1,6 @@
 package com.jmaerte.simplicial;
 
 import com.jmaerte.simplicial.util.*;
-
-import java.lang.reflect.Array;
 import java.util.*;
 
 /**
@@ -49,9 +47,9 @@ public class Simplicial {
 
         // Create a cache
         SetList<Wrapper>[] cache = new SetList[2];
-        int[][] smithCache = new int[][]{
-                new int[0],
-                new int[0]
+        Number[][] smithCache = new Number[][]{
+                new Number[0],
+                new Number[0]
         };
 
         // Adding empty set.
@@ -63,7 +61,7 @@ public class Simplicial {
         for(int k = 1; k <= maxSize; k++) {
             generate(k, cache[1]);
             System.out.println("Found " + cache[1].size() + " faces of dimension " + (k-1));
-            Matrix matrix = new Matrix(cache[1].size(), cache[0].size());
+            SparseMatrix matrix = new SparseMatrix(cache[1].size(), cache[0].size());
             boundary(matrix, cache[0], cache[1]);
             smithCache[0] = smithCache[1];
             smithCache[1] = matrix.smith();
@@ -109,7 +107,7 @@ public class Simplicial {
         Collections.sort(fill, wrapperComparator);
     }
 
-    public void boundary(Matrix boundary, SetList<Wrapper> lower, SetList<Wrapper> higher) {
+    public void boundary(SparseMatrix boundary, SetList<Wrapper> lower, SetList<Wrapper> higher) {
         for(int i = 0; i < higher.size(); i++) {
             int[] data = higher.get(i).data;
             for(int l = 0; l < data.length; l++) {
