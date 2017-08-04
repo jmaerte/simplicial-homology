@@ -83,11 +83,14 @@ public class SparseMatrix {
         for(int i = 0; i < g; i++) {
             resultList.add(1);
         }
-        System.out.println("");
+        System.out.println();
+        System.out.println(g + " ones found in smith normal form.");
         System.out.print("Valence Algorithm:");
+
         ArrayList<Integer> todo = gauss.y;
 
         // System.out.println(resultList);
+        System.out.println();
         Number[] result = new Number[resultList.size()];
         for(int i = 0; i < result.length; i++) {
             result[i] = resultList.get(i);
@@ -101,10 +104,9 @@ public class SparseMatrix {
         int k = 0;// amount of already eliminated columns
         for(int j = 0; j < m; j++) {
             MatrixNode col = cols[j].down;
-            if(cols[j].i == n) continue;
             ArrayList<MatrixNode> pivotRows = new ArrayList<>();
             while(col.i != n) {
-                if(col.i > n - heap) break;
+                if(col.i >= n - heap) break;
                 if(col.left.j != -1 || col.i < k) {
                     col = col.down;
                     continue;
@@ -135,7 +137,6 @@ public class SparseMatrix {
                     if(pivot == null || rowOcc[curr.i] < rowOcc[pivot.i]) pivot = curr;
                 }
                 swapRows(pivot.i, k);
-                k++;
                 //TODO: Print the ones done with gaussian elimination.
                 //TODO Eliminate the whole column j.
                 MatrixNode node = cols[j].down;
@@ -153,6 +154,7 @@ public class SparseMatrix {
                 }
                 rows[k].right.right = node;
                 node.left = rows[k].right;
+                k++;
                 System.out.print("\rGaussed " + k + " columns");
                 // System.out.println(this);
             }

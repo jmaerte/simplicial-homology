@@ -117,6 +117,7 @@ public class IO {
                     arrayList.add(set);
                     currentSet = new ArrayList<>();
                 } else if(c == separator) {
+                    if(curr == "") continue;
                     int i = Integer.valueOf(curr);
                     if(i > n) n = i;
                     currentSet.add(i);
