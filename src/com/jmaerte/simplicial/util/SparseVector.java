@@ -121,9 +121,43 @@ public class SparseVector {
      * @param lambda the scalar which the added vector is multiplied.
      */
     public SparseVector add(SparseVector v, int lambda) {
-        SparseVector result = ZERO(length);
+        SparseVector result = new SparseVector(length);
         // TODO: Here is the bottle neck.
-
+        int i = 0;
+        int occupation = 0;
+        ArrayList<Integer> ind = new ArrayList<>();
+        ArrayList<Integer> val = new ArrayList<>();
+        for(int j = 0; j < v.occupation; j++) {
+            if(i >= this.occupation) {
+                ind.add(v.indices[j]);
+                val.add(v.values[j]);
+            }else if(indices[i] < v.indices[j]) {
+                ind.add(indices[i]);
+                val.add(values[i]);
+                j--;
+                i++;
+            }else if(indices[i] > v.indices[j]) {
+                ind.add(v.indices[j]);
+                val.add(v.values[j]);
+            }else if(values[i] + lambda * v.values[j] != 0){
+                ind.add(v.indices[j]);
+                val.add(values[i] + lambda * v.values[j]);
+                i++;
+            }else {
+                i++;
+                occupation--;
+            }
+            occupation++;
+        }
+        int[] indices = new int[ind.size()];
+        int[] values = new int[indices.length];
+        for(int k = 0; k < values.length; k++) {
+            indices[k] = ind.get(k);
+            values[k] = val.get(k);
+        }
+        result.indices = indices;
+        result.values = values;
+        result.occupation = occupation;
         return result;
     }
 
