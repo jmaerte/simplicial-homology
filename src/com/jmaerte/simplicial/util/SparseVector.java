@@ -149,6 +149,11 @@ public class SparseVector {
             }
             occupation++;
         }
+        while(i < this.occupation) {
+            ind.add(indices[i]);
+            val.add(values[i]);
+            i++;
+        }
         int[] indices = new int[ind.size()];
         int[] values = new int[indices.length];
         for(int k = 0; k < values.length; k++) {
