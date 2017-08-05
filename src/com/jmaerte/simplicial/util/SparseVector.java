@@ -1,5 +1,8 @@
 package com.jmaerte.simplicial.util;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
 /**
  * Created by Julian on 03/08/2017.
  */
@@ -117,19 +120,11 @@ public class SparseVector {
      * @param v the vector that shell get added.
      * @param lambda the scalar which the added vector is multiplied.
      */
-    public void add(SparseVector v, int lambda) {
-        for(int i = 0; i < v.occupation; i++) {
-            int k = index(v.indices[i]);
-            if(k < occupation && indices[k] == v.indices[i]) {
-                if(values[k] + lambda * v.values[i] != 0) {
-                    values[k] += lambda * v.values[i];
-                }else {
-                    remove(k);
-                }
-            }else {
-                insert(k, v.indices[i], lambda * v.values[i]);
-            }
-        }
+    public SparseVector add(SparseVector v, int lambda) {
+        SparseVector result = ZERO(length);
+        // TODO: Here is the bottle neck.
+
+        return result;
     }
 
     /** Binary searches for the index k, such that values[k] is the i-th index entry.
@@ -148,7 +143,6 @@ public class SparseVector {
             else if(indices[mid] < i) left = mid + 1;
             else return mid;
         }
-
         return left;
     }
 
@@ -160,5 +154,30 @@ public class SparseVector {
         return s;
     }
 
+    public SparseIterator iterator() {
+        return new SparseIterator(this);
+    }
 
+    private class SparseIterator implements Iterator<Integer> {
+
+        SparseVector vector;
+        int i = 0;
+
+        public SparseIterator(SparseVector vector) {
+            this.vector = vector;
+        }
+
+        public boolean hasNext() {
+            return i < vector.occupation;
+        }
+
+        public Integer next() {
+            i++;
+            return vector.values[i-1];
+        }
+
+        public int index() {
+            return indices[i-1];
+        }
+    }
 }

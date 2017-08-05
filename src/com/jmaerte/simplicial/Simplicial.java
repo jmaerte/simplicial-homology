@@ -148,21 +148,18 @@ public class Simplicial {
                 zeros++;
                 continue;
             }
-            if(Math.abs(vector.getFirstValue()) != 1) {
-                heap.add(vector);
-                continue;
-            }
             int ri = vector.getFirstIndex();
-            if(ri >= 0) {
-                //p = done + 1, falls p größer als alle rj. Ansonsten ist 0 <= p <= done und damit entweder enthalten oder
-                // genau die position, an welcher p stehen müsste.
-                int p = binarySearch(doneCols, ri, done);
-                if(p < done && doneCols[p] == ri) {
-                    //TODO: Eliminiere den Eintrag a_i,ri durch zeilenaddition von rows[p] auf die aktuelle Zeile.
-                    vector.add(rows[p], - vector.getFirstValue() / rows[p].getFirstValue());
-                    i--;
-                    generate = false;
-                    last = vector;
+            //p = done + 1, falls p größer als alle rj. Ansonsten ist 0 <= p <= done und damit entweder enthalten oder
+            // genau die position, an welcher p stehen müsste.
+            int p = binarySearch(doneCols, ri, done);
+            if(p < done && doneCols[p] == ri) {
+                //TODO: Eliminiere den Eintrag a_i,ri durch zeilenaddition von rows[p] auf die aktuelle Zeile.
+                last = vector.add(rows[p], - vector.getFirstValue() * rows[p].getFirstValue()); // we can use multiplication here, because rows[p][pi] = +-1
+                i--;
+                generate = false;
+            }else {
+                if(Math.abs(vector.getFirstValue()) != 1) {
+                    heap.add(vector);
                 }else {
                     // Insert the new vector into the arrays.
                     System.arraycopy(doneCols, p, doneCols, p + 1, done - p);
