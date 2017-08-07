@@ -120,50 +120,103 @@ public class SparseVector {
      * @param v the vector that shell get added.
      * @param lambda the scalar which the added vector is multiplied.
      */
-    public SparseVector add(SparseVector v, int lambda) {
-        SparseVector result = new SparseVector(length);
-        // TODO: Here is the bottle neck.
+    public void add(SparseVector v, int lambda) {
+        // Version 1
+//        for(int i = 0; i < v.occupation; i++) {
+//            int k = index(v.indices[i]);
+//            if(k < occupation && indices[k] == v.indices[i]) {
+//                int val = values[k] + lambda * v.values[i];
+//                if(val == 0) remove(k);
+//                else values[k] = val;
+//            }else {
+//                insert(k, v.indices[i], lambda * v.values[i]);
+//            }
+//        }
+
+        //Version 2: return SparseVector.
+//        SparseVector result = new SparseVector(length);
+//        // TODO: Here is the bottle neck.
+//        int i = 0;
+//        int occupation = 0;
+//        ArrayList<Integer> ind = new ArrayList<>();
+//        ArrayList<Integer> val = new ArrayList<>();
+//        for(int j = 0; j < v.occupation; j++) {
+//            if(i >= this.occupation) {
+//                ind.add(v.indices[j]);
+//                val.add(v.values[j]);
+//            }else if(indices[i] < v.indices[j]) {
+//                ind.add(indices[i]);
+//                val.add(values[i]);
+//                j--;
+//                i++;
+//            }else if(indices[i] > v.indices[j]) {
+//                ind.add(v.indices[j]);
+//                val.add(v.values[j]);
+//            }else if(values[i] + lambda * v.values[j] != 0){
+//                ind.add(v.indices[j]);
+//                val.add(values[i] + lambda * v.values[j]);
+//                i++;
+//            }else {
+//                i++;
+//                occupation--;
+//            }
+//            occupation++;
+//        }
+//        while(i < this.occupation) {
+//            ind.add(indices[i]);
+//            val.add(values[i]);
+//            occupation++;
+//            i++;
+//        }
+//        int[] indices = new int[ind.size()];
+//        int[] values = new int[indices.length];
+//        for(int k = 0; k < values.length; k++) {
+//            indices[k] = ind.get(k);
+//            values[k] = val.get(k);
+//        }
+//        result.indices = indices;
+//        result.values = values;
+//        result.occupation = occupation;
+//        return result;
+
+        // Version 3: 9 seconds on the 7x7 chessboard. Choose this.
+        int[] ind = new int[occupation + v.occupation];
+        int[] val = new int[ind.length];
+        int occ = 0;
         int i = 0;
-        int occupation = 0;
-        ArrayList<Integer> ind = new ArrayList<>();
-        ArrayList<Integer> val = new ArrayList<>();
         for(int j = 0; j < v.occupation; j++) {
-            if(i >= this.occupation) {
-                ind.add(v.indices[j]);
-                val.add(v.values[j]);
+            if(i >= occupation) {
+                ind[occ] = v.indices[j];
+                val[occ] = lambda * v.values[j];
             }else if(indices[i] < v.indices[j]) {
-                ind.add(indices[i]);
-                val.add(values[i]);
+                ind[occ] = indices[i];
+                val[occ] = values[i];
                 j--;
                 i++;
             }else if(indices[i] > v.indices[j]) {
-                ind.add(v.indices[j]);
-                val.add(v.values[j]);
-            }else if(values[i] + lambda * v.values[j] != 0){
-                ind.add(v.indices[j]);
-                val.add(values[i] + lambda * v.values[j]);
-                i++;
+                ind[occ] = v.indices[j];
+                val[occ] = lambda * v.values[j];
             }else {
-                i++;
-                occupation--;
+                if(values[i] + lambda * v.values[j] != 0) {
+                    ind[occ] = indices[i];
+                    val[occ] = values[i] + lambda * v.values[j];
+                    i++;
+                }else {
+                    i++;
+                    occ--;
+                }
             }
-            occupation++;
+            occ++;
         }
-        while(i < this.occupation) {
-            ind.add(indices[i]);
-            val.add(values[i]);
+        while(i < occupation) {
+            ind[occ] = indices[i];
+            val[occ] = values[i];
+            occ++;
             i++;
         }
-        int[] indices = new int[ind.size()];
-        int[] values = new int[indices.length];
-        for(int k = 0; k < values.length; k++) {
-            indices[k] = ind.get(k);
-            values[k] = val.get(k);
-        }
-        result.indices = indices;
-        result.values = values;
-        result.occupation = occupation;
-        return result;
+        this.indices = ind;
+        this.values = val;
+        this.occupation = occ;
     }
 
     /** Binary searches for the index k, such that values[k] is the i-th index entry.

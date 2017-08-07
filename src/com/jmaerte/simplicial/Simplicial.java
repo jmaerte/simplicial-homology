@@ -61,23 +61,21 @@ public class Simplicial {
         for(int k = 1; k <= maxSize; k++) {
             generate(k, cache[1]);
             System.out.println("Found " + cache[1].size() + " faces of dimension " + (k-1));
-//            SparseMatrix matrix = new SparseMatrix(cache[1].size(), cache[0].size());
-//            boundary(matrix, cache[0], cache[1]);
             smithCache[0] = smithCache[1];
-            Vector2D<Integer, ArrayList<SparseVector>> boundary =  boundary(cache[0], cache[1]);
-            int ones = boundary.x;
-            Number[] heap = smith(boundary.y);
-            smithCache[1] = new Number[ones + heap.length];
-            for(int i = 0; i < ones + heap.length; i++) {
-                smithCache[1][i] = (i < ones ? 1 : heap[i - ones]);
-            }
-//            smithCache[1] = matrix.smith();
+            // the calculated function is del_k : C_k -> C_(k-1).
+            Vector4D<Integer, int[], SparseVector[], ArrayList<SparseVector>> boundary =  boundary(cache[0], cache[1]);
+            Number[] heap = smith(boundary);
+            smithCache[1] = new Number[heap.length + 1];
+            smithCache[1][0] = boundary.y.length;
+            //smithCache[1] is the array, such that the first entry is a number of ones and after there is the block of other smith normal form entries.
+//            for(SparseVector v : boundary.w) {
+//                System.out.println(v);
+//            }
             cache[0] = cache[1];
             cache[1] = new SetList<>();
         }
 
-
-        System.out.println("Generation of simplicial complex took " + (System.currentTimeMillis() - ms) + "ms");
+        System.out.println("Calculation of simplex homology groups took " + (System.currentTimeMillis() - ms) + "ms");
     }
 
 
@@ -114,7 +112,7 @@ public class Simplicial {
     }
 
 //    public void boundary(SparseMatrix boundary, SetList<Wrapper> lower, SetList<Wrapper> higher) {
-    public Vector2D<Integer, ArrayList<SparseVector>> boundary(SetList<Wrapper> lower, SetList<Wrapper> higher) {
+    public Vector4D<Integer, int[], SparseVector[], ArrayList<SparseVector>> boundary(SetList<Wrapper> lower, SetList<Wrapper> higher) {
         ArrayList<SparseVector> heap = new ArrayList<>();
         int[] doneCols = new int[higher.size()];
         SparseVector[] rows = new SparseVector[doneCols.length];
@@ -154,8 +152,9 @@ public class Simplicial {
             int p = binarySearch(doneCols, ri, done);
             if(p < done && doneCols[p] == ri) {
                 //TODO: Eliminiere den Eintrag a_i,ri durch zeilenaddition von rows[p] auf die aktuelle Zeile.
-                last = vector.add(rows[p], - vector.getFirstValue() * rows[p].getFirstValue()); // we can use multiplication here, because rows[p][pi] = +-1
+                vector.add(rows[p], - vector.getFirstValue() * rows[p].getFirstValue()); // we can use multiplication here, because rows[p][pi] = +-1
                 i--;
+                last = vector;
                 generate = false;
             }else {
                 if(Math.abs(vector.getFirstValue()) != 1) {
@@ -172,46 +171,31 @@ public class Simplicial {
         }
         System.out.println(done);
         System.out.println(zeros);
-        return new Vector2D<>(done, heap);
+        return new Vector4D<>(done, doneCols, rows, heap);
     }
 
-    public Number[] smith(ArrayList<SparseVector> matrix) {
-        // TODO export all this to the boundary method, so this happens on the generation of the vectors. Then dont need
-        // to iterate one more time. Send back only the integer done aswell as the heap-list, so smith can do the rest.
-//        ArrayList<SparseVector> heap = new ArrayList<>();
-//        int[] doneCols = new int[matrix.size()];
-//        SparseVector[] rows = new SparseVector[matrix.size()];
-//        int done = 0;
-//        for(int i = 0; i < matrix.size(); i++) {
-//            SparseVector r = matrix.get(i);
-//            if(r.getFirstValue() == 0) continue;
-//            if(Math.abs(r.getFirstValue()) != 1) {
-//                heap.add(r);
+    public Number[] smith(Vector4D<Integer, int[], SparseVector[], ArrayList<SparseVector>> boundary) {
+        int done = boundary.x;
+        int[] doneCols = boundary.y;
+        SparseVector[] rows = boundary.z;
+        ArrayList<SparseVector> matrix = boundary.w;
+        System.out.println(matrix.size());
+        // TODO: Maybe erase this again: (it doesnt really affect this lines. f.e. in Chess 7x7 it hast 6/11 and 19/3972. Not really effective. Still takes up 500ms.
+//        for(int l = 0; l < matrix.size(); l++) {
+//            SparseVector v = matrix.get(l);
+//            if(v.getFirstValue() == 0) {
+//                matrix.remove(l);
 //                continue;
 //            }
-//            int ri = r.getFirstIndex();
-//            if(ri >= 0) {
-//                //p = done + 1, falls p größer als alle rj. Ansonsten ist 0 <= p <= done und damit entweder enthalten oder
-//                // genau die position, an welcher p stehen müsste.
-//                int p = binarySearch(doneCols, ri, done);
-//                if(p < done && doneCols[p] == ri) {
-//                    //TODO: Eliminiere den Eintrag a_i,ri durch zeilenaddition von rows[p] auf die aktuelle Zeile.
-//                    r.add(rows[p], - r.getFirstValue() / rows[p].getFirstValue());
-//                    i--;
-//                }else {
-//                    // Insert the new vector into the arrays.
-//                    System.arraycopy(doneCols, p, doneCols, p + 1, done - p);
-//                    doneCols[p] = ri;
-//                    System.arraycopy(rows, p, rows, p + 1, done - p);
-//                    rows[p] = r;
-//                    done++;
-//                }
+//            int i = v.getFirstIndex();
+//            int k = binarySearch(doneCols, i, done);
+//            if(k < done && doneCols[k] == i) {
+//                v.add(rows[k], - v.getFirstValue() * rows[k].getFirstValue());
+//                l--;
 //            }
 //        }
-//        System.out.println(done);
+        // End of maybe erase.
         System.out.println(matrix.size());
-        // TODO: From here stop copying into boundary. this part should eliminate the heap part of the matrix.
-        //TODO: do the rest of the matrix.(heap)
         return new Number[0];
     }
 
@@ -252,6 +236,16 @@ public class Simplicial {
                 return 1;
             }
             return -1;
+        }
+    }
+
+    public static class FirstElementSorter implements Comparator<SparseVector> {
+        public int compare(SparseVector a, SparseVector b) {
+            if(a.getFirstIndex() != b.getFirstIndex()) {
+                return a.getFirstIndex() - b.getFirstIndex();
+            }else {
+                return a.getFirstValue() - b.getFirstValue();
+            }
         }
     }
 
