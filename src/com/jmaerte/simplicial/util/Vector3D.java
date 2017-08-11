@@ -12,4 +12,8 @@ public class Vector3D<T, K, L> extends Vector2D<T, K> {
         this.z = z;
     }
 
+    public String toString() {
+        return "(" + x + ", " + y + ", " + z + ")";
+    }
+
 }

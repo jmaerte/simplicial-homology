@@ -195,6 +195,26 @@ public class Simplicial {
 //            }
 //        }
         // End of maybe erase.
+        // Hypothetical.
+
+
+        // 1ms runtime execution. This is the standard procedure in the algorithm.
+//        if(matrix.size() == 0) return new Number[0];
+//        long now = System.currentTimeMillis();
+//        Collections.sort(matrix, new FirstElementSorter());
+//        int i = 0;
+//        int firstIndex = matrix.get(0).getFirstIndex();
+//        while(matrix.get(i).getFirstIndex() == firstIndex) {
+//            i++;
+//        }
+//        int[] values = new int[i];
+//        for(int j = 0; j < i; j++) {
+//            values[j] = matrix.get(j).getFirstValue();
+//        }
+//        System.out.println(Utils.gcd(values));
+//        System.out.println(System.currentTimeMillis() - now + "ms");
+//        System.exit(0);
+
         System.out.println(matrix.size());
         return new Number[0];
     }
@@ -243,8 +263,10 @@ public class Simplicial {
         public int compare(SparseVector a, SparseVector b) {
             if(a.getFirstIndex() != b.getFirstIndex()) {
                 return a.getFirstIndex() - b.getFirstIndex();
-            }else {
+            }else if(a.getFirstValue() != b.getFirstValue()){
                 return a.getFirstValue() - b.getFirstValue();
+            }else {
+                return a.occupation - b.occupation;
             }
         }
     }

@@ -3,9 +3,7 @@ package com.jmaerte.main;
 import com.jmaerte.io.IO;
 import com.jmaerte.io.Logger;
 import com.jmaerte.simplicial.Simplicial;
-import com.jmaerte.simplicial.util.Complex;
-import com.jmaerte.simplicial.util.SparseMatrix;
-import com.jmaerte.simplicial.util.SparseVector;
+import com.jmaerte.simplicial.util.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -74,6 +72,13 @@ public class Homology {
 //            }
 //        }
         // Loading Options. For more information take a look at Readme.md.
+
+        Vector2D<Integer, int[]> result = Utils.gcd(new int[]{-3477, -255, -4182});
+        System.out.println(result.x);
+        for(int i = 0; i < result.y.length; i++) {
+            System.out.println(result.y[i]);
+        }
+
 
         for(int i = 0; i < args.length; i++) {
             if(args[i].length() > 0) {
