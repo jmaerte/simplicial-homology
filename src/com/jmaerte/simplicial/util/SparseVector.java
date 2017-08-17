@@ -6,7 +6,7 @@ import java.util.Iterator;
 /**
  * Created by Julian on 03/08/2017.
  */
-public class SparseVector {
+public class SparseVector implements Comparable<SparseVector> {
 
     private static final int MINIMAL_SIZE = 16;
 
@@ -121,7 +121,7 @@ public class SparseVector {
      * @param lambda the scalar which the added vector is multiplied.
      */
     public void add(SparseVector v, int lambda) {
-        int[] ind = new int[occupation + v.occupation];
+        int[] ind = new int[Math.min(occupation + v.occupation, length)];
         int[] val = new int[ind.length];
         int occ = 0;
         int i = 0;
@@ -160,6 +160,15 @@ public class SparseVector {
         this.occupation = occ;
     }
 
+    public int get(int i) {
+        int k = index(i);
+        if(k < occupation && indices[k] == i) {
+            return values[k];
+        }else {
+            return 0;
+        }
+    }
+
     /** Binary searches for the index k, such that values[k] is the i-th index entry.
      * is values[k] undefined (k=-1 f.e.), so i-th index entry is 0.
      *
@@ -180,7 +189,7 @@ public class SparseVector {
     }
 
     public String toString() {
-        String s = "";
+        String s = "Occ: " + occupation + " -> ";
         for(int i = 0; i < occupation; i++) {
             s+= indices[i] + ": " + values[i] + " ";
         }
@@ -216,5 +225,121 @@ public class SparseVector {
 
     public Vector2D<Integer, int[]> gcd() {
         return Utils.gcd(values, occupation);
+    }
+
+    /** linear combinates two vectors.
+     *
+     * @param a scalar for v
+     * @param v first vector
+     * @param b scalar for w
+     * @param w second vector
+     * @return a*v + b*w
+     */
+    public static SparseVector linear(int a, SparseVector v, int b, SparseVector w) {
+        int[] indices = new int[Math.min(v.occupation + w.occupation, v.length)];
+        int[] values = new int[indices.length];
+        int occupation = 0;
+        int l = 0;
+        for(int i = 0, k = 0; i < v.occupation || k < w.occupation;) {
+            if(i >= v.occupation) {
+                if(b != 0) {
+                    indices[l] = w.indices[k];
+                    values[l] = b * w.values[k];
+                }else {
+                    l--;
+                    occupation--;
+                }
+                k++;
+            }else if(k >= w.occupation) {
+                if(a != 0) {
+                    indices[l] = v.indices[i];
+                    values[l] = a * v.values[i];
+                }else {
+                    l--;
+                    occupation--;
+                }
+                i++;
+            }else {
+                if(v.indices[i] == w.indices[k]) {
+                    if(a  * v.values[i] + b * w.values[k] != 0) {
+                        indices[l] = v.indices[i];
+                        values[l] = a * v.values[i] + b * w.values[k];
+                    }else {
+                        l--;
+                        occupation--;
+                    }
+                    i++;
+                    k++;
+                }else if(v.indices[i] < w.indices[k]) {
+                    // add v
+                    if(a != 0) {
+                        indices[l] = v.indices[i];
+                        values[l] = a * v.values[i];
+                    }else {
+                        l--;
+                        occupation--;
+                    }
+                    i++;
+                }else {
+                    // add w
+                    if(b != 0) {
+                        indices[l] = w.indices[k];
+                        values[l] = b * w.values[k];
+                    }else {
+                        l--;
+                        occupation--;
+                    }
+                    k++;
+                }
+            }
+            occupation++;
+            l++;
+        }
+        SparseVector res = new SparseVector(v.length);
+        res.indices = indices;
+        res.values = values;
+        res.occupation = occupation;
+        return res;
+    }
+
+    public static int rowEl(SparseVector[] matrix, int t, int n) {
+        for(int i = 1; i < matrix[t].occupation; i++) {
+            Vector3D<Integer, Integer, Integer> gcd = Utils.gcd(matrix[t].values[0], matrix[t].values[i]);
+            // a = values[0], b = values[i];
+            int alpha = gcd.y;
+            int beta = gcd.z;
+            int gcdVal = gcd.x;
+            int y = matrix[t].values[0] / gcdVal;
+            int x = matrix[t].values[i] / gcdVal;
+            // substitute column matrix[t].indices[0] through alpha * matrix[t].indices[0]-th col + beta * matrix[t].indices[i]-th col
+            // and column matrix[t].indices[i] through y * matrix.indices[i]-th col - x * matrix.indices[0]-th col.
+            matrix[t].values[0] = gcdVal;
+            matrix[t].remove(i);
+            for(int k = t + 1; k < n; k++) {
+                int l = matrix[k].index(matrix[t].indices[i]);
+                if(l < matrix[k].occupation && matrix[k].indices[l] == matrix[t].indices[i]) {
+                    matrix[k].set(matrix[t].indices[0], alpha * matrix[k].get(matrix[t].indices[0]) + beta * matrix[k].values[l]);
+                    matrix[k].set(matrix[t].indices[i], y * matrix[k].values[l] - x * matrix[k].get(matrix[t].indices[0]));
+                    if(matrix[k].occupation == 0) {
+                        SparseVector temp = matrix[n-1];
+                        matrix[--n] = matrix[k];
+                        matrix[k] = temp;
+                    }
+                }
+            }
+            i--;
+        }
+        return n;
+    }
+
+    public int compareTo(SparseVector v) {
+        if(v.getFirstIndex() != getFirstIndex()) return getFirstIndex() - v.getFirstIndex();
+        int result = 0;
+        int i = 0;
+        while(result == 0) {
+            if(get(i) != v.get(i)) result = get(i) - v.get(i);
+            i++;
+        }
+        return result;
     }
 }

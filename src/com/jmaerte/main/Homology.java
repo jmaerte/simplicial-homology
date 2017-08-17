@@ -73,12 +73,37 @@ public class Homology {
 //        }
         // Loading Options. For more information take a look at Readme.md.
 
-        Vector2D<Integer, int[]> result = Utils.gcd(new int[]{-3477, -255, -4182});
-        System.out.println(result.x);
-        for(int i = 0; i < result.y.length; i++) {
-            System.out.println(result.y[i]);
-        }
 
+        ArrayList<SparseVector> rows = new ArrayList<>();
+        SparseVector v1 = new SparseVector(5);
+        SparseVector v2 = new SparseVector(5);
+        SparseVector v3 = new SparseVector(5);
+        SparseVector v4 = new SparseVector(5);
+        SparseVector v5 = new SparseVector(5);
+        v1.indices = new int[]{0,1,2,3,4};
+        v1.values = new int[]{2,-7,5,47,98};
+        v1.occupation = 5;
+        v2.indices = new int[]{0,1,2,3,4};
+        v2.values = new int[]{97,-94,1,-13,-40};
+        v2.occupation = 5;
+        v3.indices = new int[]{0,1,3,4};
+        v3.values = new int[]{-17,58,-4,17};
+        v3.occupation = 4;
+        v4.indices = new int[]{0,1,2,3,4};
+        v4.values = new int[]{5,63,60,9,17};
+        v4.occupation = 5;
+        v5.indices = new int[]{0,1,2,3,4};
+        v5.values = new int[]{38,9,22,2,2};
+        v5.occupation = 5;
+        rows.add(v1);
+        rows.add(v2);
+        rows.add(v3);
+        rows.add(v4);
+        rows.add(v5);
+        Number[] arr = Simplicial.smith(new Vector4D<>(0, new int[0], new SparseVector[0], rows));
+        for(Number n : arr) {
+            System.out.println("simp: " + n);
+        }
 
         for(int i = 0; i < args.length; i++) {
             if(args[i].length() > 0) {

@@ -174,12 +174,15 @@ public class Simplicial {
         return new Vector4D<>(done, doneCols, rows, heap);
     }
 
-    public Number[] smith(Vector4D<Integer, int[], SparseVector[], ArrayList<SparseVector>> boundary) {
+    public static Number[] smith(Vector4D<Integer, int[], SparseVector[], ArrayList<SparseVector>> boundary) {
         int done = boundary.x;
         int[] doneCols = boundary.y;
         SparseVector[] rows = boundary.z;
-        ArrayList<SparseVector> matrix = boundary.w;
-        System.out.println(matrix.size());
+        SparseVector[] matrix = new SparseVector[boundary.w.size()];
+        for(int i = 0; i < boundary.w.size(); i++) {
+            matrix[i] = boundary.w.get(i);
+        }
+        System.out.println(matrix.length);
         // TODO: Maybe erase this again: (it doesnt really affect this lines. f.e. in Chess 7x7 it hast 6/11 and 19/3972. Not really effective. Still takes up 500ms.
 //        for(int l = 0; l < matrix.size(); l++) {
 //            SparseVector v = matrix.get(l);
@@ -214,9 +217,98 @@ public class Simplicial {
 //        System.out.println(Utils.gcd(values));
 //        System.out.println(System.currentTimeMillis() - now + "ms");
 //        System.exit(0);
+        ArrayList<Integer> result = new ArrayList<>();
+        int entryT = 0;
+        boolean next = false;
+        int n = matrix.length;
+        for(int t = 0; t < n; t++) {
+//            System.out.println("Step " + t + ", entryT: " + entryT);
+//            for(int i = 0; i < n; i++) {
+//                System.out.println(matrix[i]);
+//            }
 
-        System.out.println(matrix.size());
-        return new Number[0];
+            int j = -1;
+            ArrayList<Integer> iRows = null;// indices rows
+            for(int i = t; i < n; i++) {
+                if(j < 0 || matrix[i].getFirstIndex() < j) {
+                    j = matrix[i].getFirstIndex();
+                    iRows = new ArrayList<>();
+                    iRows.add(i);
+                }else if(matrix[i].getFirstIndex() == j) {
+                    iRows.add(i);
+                }
+            }
+            if(j == -1) continue;
+            int k = iRows.get(0);
+            // swap row t with row k
+            SparseVector temp = matrix[t];
+            matrix[t] = matrix[k];
+            matrix[k] = temp;
+            boolean removed = matrix[k].getFirstIndex() != j;
+            int skipped = 0;
+            for(int h = 0; h < iRows.size(); h++) {
+                int l = iRows.get(h);
+                if(l >= n) break;
+                if(l != t && (!removed || l != k)) {
+                    Vector3D<Integer, Integer, Integer> gcd = Utils.gcd(matrix[t].getFirstValue(), matrix[l].getFirstValue());
+                    int alpha = gcd.y;
+                    int beta = gcd.z;
+                    int gcdVal = gcd.x;
+                    int x = matrix[l].getFirstIndex() / gcdVal;
+                    int y = matrix[t].getFirstIndex() / gcdVal;
+                    matrix[t] = SparseVector.linear(alpha, matrix[t], beta, matrix[l]);
+                    matrix[l] = SparseVector.linear(y, matrix[l], -x, matrix[t]);
+                    if(matrix[l].getFirstIndex() < 0) {
+                        if(iRows.get(iRows.size()-skipped-1) == n-1) {
+                            skipped++;
+                            h--;
+                        }
+                        SparseVector tempN = matrix[n-1];
+                        matrix[--n] = matrix[l];
+                        matrix[l] = tempN;
+                    }
+                }
+            }
+            // column is eliminated.
+//            System.out.println("After column elimination:");
+//            for(int i = 0; i < n; i++) {
+//                System.out.println(matrix[i]);
+//            }
+            n = SparseVector.rowEl(matrix, t, n);
+            if(entryT != matrix[t].getFirstValue() || next) {
+                t--;
+                next = false;
+            }else {
+                next = true;
+                result.add(entryT);
+            }
+            entryT = next ? 0 : matrix[t+1].getFirstValue();
+//            System.out.println("After row elimination:");
+//            for(int i = 0; i < n; i++) {
+//                System.out.println(matrix[i]);
+//            }
+        }
+
+        System.out.println(n);
+        Number[] resultArr = new Number[result.size()];
+        System.out.println(result);
+        for(int i = 0; i < resultArr.length; i++) {
+            resultArr[i] = result.get(i);
+        }
+        return resultArr;
+    }
+
+    public int binarySearch(ArrayList<Integer> arr, int i, int max) {
+        if(max == 0 || max >= arr.size() || i > arr.get(max - 1)) return max;
+        int left = 0;
+        int right = max;
+        while(left < right) {
+            int mid = (left + right) / 2;
+            if(arr.get(mid) > i) right = mid;
+            else if(arr.get(mid) < i) left = mid + 1;
+            else return mid;
+        }
+        return left;
     }
 
     public int binarySearch(int[] arr, int i, int max) {
@@ -231,7 +323,6 @@ public class Simplicial {
         }
         return left;
     }
-
 
     public int binarySearch(ArrayList<Wrapper> list, Wrapper element, Comparator<Wrapper> comparator) {
         int low = 0;
