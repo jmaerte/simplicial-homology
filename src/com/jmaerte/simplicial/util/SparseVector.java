@@ -236,13 +236,13 @@ public class SparseVector implements Comparable<SparseVector> {
      * @return a*v + b*w
      */
     public static SparseVector linear(int a, SparseVector v, int b, SparseVector w) {
-        int[] indices = new int[Math.min(v.occupation + w.occupation, v.length)];
+        int[] indices = new int[Math.min(v.values.length + w.values.length, v.length)];
         int[] values = new int[indices.length];
         int occupation = 0;
         int l = 0;
         for(int i = 0, k = 0; i < v.occupation || k < w.occupation;) {
             if(i >= v.occupation) {
-                if(b != 0) {
+                if(b * w.values[k] != 0) {
                     indices[l] = w.indices[k];
                     values[l] = b * w.values[k];
                 }else {
@@ -251,7 +251,7 @@ public class SparseVector implements Comparable<SparseVector> {
                 }
                 k++;
             }else if(k >= w.occupation) {
-                if(a != 0) {
+                if(a * v.values[i] != 0) {
                     indices[l] = v.indices[i];
                     values[l] = a * v.values[i];
                 }else {
@@ -272,7 +272,7 @@ public class SparseVector implements Comparable<SparseVector> {
                     k++;
                 }else if(v.indices[i] < w.indices[k]) {
                     // add v
-                    if(a != 0) {
+                    if(a * v.values[i] != 0) {
                         indices[l] = v.indices[i];
                         values[l] = a * v.values[i];
                     }else {
@@ -282,7 +282,7 @@ public class SparseVector implements Comparable<SparseVector> {
                     i++;
                 }else {
                     // add w
-                    if(b != 0) {
+                    if(b * w.values[k] != 0) {
                         indices[l] = w.indices[k];
                         values[l] = b * w.values[k];
                     }else {
@@ -316,16 +316,25 @@ public class SparseVector implements Comparable<SparseVector> {
             matrix[t].values[0] = gcdVal;
             matrix[t].remove(i);
             for(int k = t + 1; k < n; k++) {
-                int l = matrix[k].index(matrix[t].indices[i]);
-                if(l < matrix[k].occupation && matrix[k].indices[l] == matrix[t].indices[i]) {
-                    matrix[k].set(matrix[t].indices[0], alpha * matrix[k].get(matrix[t].indices[0]) + beta * matrix[k].values[l]);
-                    matrix[k].set(matrix[t].indices[i], y * matrix[k].values[l] - x * matrix[k].get(matrix[t].indices[0]));
-                    if(matrix[k].occupation == 0) {
-                        SparseVector temp = matrix[n-1];
-                        matrix[--n] = matrix[k];
-                        matrix[k] = temp;
-                    }
+                int main = matrix[k].get(matrix[t].indices[0]);
+                int second = matrix[k].get(matrix[t].indices[i]);
+                matrix[k].set(matrix[t].indices[0], alpha * main + beta * second);
+                matrix[k].set(matrix[t].indices[i], y * second - x * main);
+                if(matrix[k].occupation == 0) {
+                    SparseVector temp = matrix[n-1];
+                    matrix[--n] = matrix[k];
+                    matrix[k] = temp;
                 }
+//                int l = matrix[k].index(matrix[t].indices[i]);
+//                if(l < matrix[k].occupation && matrix[k].indices[l] == matrix[t].indices[i]) {
+//                    matrix[k].set(matrix[t].indices[0], alpha * matrix[k].get(matrix[t].indices[0]) + beta * matrix[k].values[l]);
+//                    matrix[k].set(matrix[t].indices[i], y * matrix[k].values[l] - x * matrix[k].get(matrix[t].indices[0]));
+//                    if(matrix[k].occupation == 0) {
+//                        SparseVector temp = matrix[n-1];
+//                        matrix[--n] = matrix[k];
+//                        matrix[k] = temp;
+//                    }
+//                }
             }
             i--;
         }

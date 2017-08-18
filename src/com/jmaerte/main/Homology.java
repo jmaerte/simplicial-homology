@@ -74,36 +74,28 @@ public class Homology {
         // Loading Options. For more information take a look at Readme.md.
 
 
-        ArrayList<SparseVector> rows = new ArrayList<>();
-        SparseVector v1 = new SparseVector(5);
-        SparseVector v2 = new SparseVector(5);
-        SparseVector v3 = new SparseVector(5);
-        SparseVector v4 = new SparseVector(5);
-        SparseVector v5 = new SparseVector(5);
-        v1.indices = new int[]{0,1,2,3,4};
-        v1.values = new int[]{2,-7,5,47,98};
-        v1.occupation = 5;
-        v2.indices = new int[]{0,1,2,3,4};
-        v2.values = new int[]{97,-94,1,-13,-40};
-        v2.occupation = 5;
-        v3.indices = new int[]{0,1,3,4};
-        v3.values = new int[]{-17,58,-4,17};
-        v3.occupation = 4;
-        v4.indices = new int[]{0,1,2,3,4};
-        v4.values = new int[]{5,63,60,9,17};
-        v4.occupation = 5;
-        v5.indices = new int[]{0,1,2,3,4};
-        v5.values = new int[]{38,9,22,2,2};
-        v5.occupation = 5;
-        rows.add(v1);
-        rows.add(v2);
-        rows.add(v3);
-        rows.add(v4);
-        rows.add(v5);
-        Number[] arr = Simplicial.smith(new Vector4D<>(0, new int[0], new SparseVector[0], rows));
-        for(Number n : arr) {
-            System.out.println("simp: " + n);
-        }
+        // example:
+//        ArrayList<SparseVector> rows = new ArrayList<>();
+//        SparseVector v1 = new SparseVector(3);
+//        SparseVector v2 = new SparseVector(3);
+//        SparseVector v3 = new SparseVector(3);
+//        v1.indices = new int[]{0,1,2};
+//        v1.values = new int[]{2,5,4};
+//        v1.occupation = 3;
+//        v2.indices = new int[]{0,1,2};
+//        v2.values = new int[]{-6,6,12};
+//        v2.occupation = 3;
+//        v3.indices = new int[]{0,1,2};
+//        v3.values = new int[]{10,-4,-16};
+//        v3.occupation = 3;
+//        rows.add(v1);
+//        rows.add(v2);
+//        rows.add(v3);
+//        Number[] arr = Simplicial.smith(new Vector4D<>(0, new int[0], new SparseVector[0], rows));
+//        for(Number n : arr) {
+//            System.out.println("simp: " + n);
+//        }
+//        System.exit(0);
 
         for(int i = 0; i < args.length; i++) {
             if(args[i].length() > 0) {
@@ -165,6 +157,10 @@ public class Homology {
             case "L":// turn on logging
                 isLog = true;
                 outputPath = value;
+                break;
+            case "from":// from H_{k0}
+                break;
+            case "to":// to H_{k1}
                 break;
         }
     }

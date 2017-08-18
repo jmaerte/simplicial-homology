@@ -153,6 +153,7 @@ public class Simplicial {
             if(p < done && doneCols[p] == ri) {
                 //TODO: Eliminiere den Eintrag a_i,ri durch zeilenaddition von rows[p] auf die aktuelle Zeile.
                 vector.add(rows[p], - vector.getFirstValue() * rows[p].getFirstValue()); // we can use multiplication here, because rows[p][pi] = +-1
+//                vector = SparseVector.linear(1, vector, - vector.getFirstValue() * rows[p].getFirstValue(), rows[p]);
                 i--;
                 last = vector;
                 generate = false;
@@ -228,44 +229,52 @@ public class Simplicial {
 //            }
 
             int j = -1;
-            ArrayList<Integer> iRows = null;// indices rows
+            Indexer idx = new Indexer(n-t);
             for(int i = t; i < n; i++) {
                 if(j < 0 || matrix[i].getFirstIndex() < j) {
                     j = matrix[i].getFirstIndex();
-                    iRows = new ArrayList<>();
-                    iRows.add(i);
+                    idx.empty();
+                    idx.add(i);
                 }else if(matrix[i].getFirstIndex() == j) {
-                    iRows.add(i);
+                    idx.add(i);
                 }
             }
-            if(j == -1) continue;
-            int k = iRows.get(0);
+            if(j == -1 || idx.isEmpty()) continue;
+            int k = idx.get(0);
             // swap row t with row k
-            SparseVector temp = matrix[t];
-            matrix[t] = matrix[k];
-            matrix[k] = temp;
-            boolean removed = matrix[k].getFirstIndex() != j;
-            int skipped = 0;
-            for(int h = 0; h < iRows.size(); h++) {
-                int l = iRows.get(h);
-                if(l >= n) break;
-                if(l != t && (!removed || l != k)) {
-                    Vector3D<Integer, Integer, Integer> gcd = Utils.gcd(matrix[t].getFirstValue(), matrix[l].getFirstValue());
-                    int alpha = gcd.y;
-                    int beta = gcd.z;
-                    int gcdVal = gcd.x;
-                    int x = matrix[l].getFirstIndex() / gcdVal;
-                    int y = matrix[t].getFirstIndex() / gcdVal;
-                    matrix[t] = SparseVector.linear(alpha, matrix[t], beta, matrix[l]);
-                    matrix[l] = SparseVector.linear(y, matrix[l], -x, matrix[t]);
-                    if(matrix[l].getFirstIndex() < 0) {
-                        if(iRows.get(iRows.size()-skipped-1) == n-1) {
-                            skipped++;
-                            h--;
+            if(k != t) {
+                SparseVector temp = matrix[t];
+                matrix[t] = matrix[k];
+                matrix[k] = temp;
+                idx.removePos(0);
+                idx.add(t);
+            }
+            for(int h = 0; h < idx.occupation; h++) {
+                int l = idx.get(h);
+                if(l != t) {
+                    if(Math.abs(matrix[t].values[0]) != 1) {
+                        Vector3D<Integer, Integer, Integer> gcd = Utils.gcd(matrix[t].getFirstValue(), matrix[l].getFirstValue());
+                        int alpha = gcd.y;
+                        int beta = gcd.z;
+                        int gcdVal = gcd.x;
+                        int x = matrix[l].getFirstValue() / gcdVal;
+                        int y = matrix[t].getFirstValue() / gcdVal;
+//                    System.out.println("k = " + k + ", l = " + l + ", a = " + matrix[t].getFirstValue() + ", b = " + matrix[l].getFirstValue() + ", x = " + x + ", y = " + y);
+                        SparseVector newT = SparseVector.linear(alpha, matrix[t], beta, matrix[l]);
+                        matrix[l] = SparseVector.linear(y, matrix[l], -1 * x, matrix[t]);
+                        matrix[t] = newT;
+                        if(matrix[l].occupation == 0) {
+                            System.out.println("finalize");
+                            if(idx.get(idx.occupation - 1) == n-1) {
+                                h--;
+                                idx.removePos(idx.occupation - 1);
+                            }
+                            SparseVector v = matrix[n-1];
+                            matrix[--n] = matrix[l];
+                            matrix[l] = v;
                         }
-                        SparseVector tempN = matrix[n-1];
-                        matrix[--n] = matrix[l];
-                        matrix[l] = tempN;
+                    }else {
+                        matrix[l] = SparseVector.linear(1, matrix[l], - matrix[l].values[0] * matrix[t].values[0], matrix[t]);
                     }
                 }
             }
@@ -274,13 +283,20 @@ public class Simplicial {
 //            for(int i = 0; i < n; i++) {
 //                System.out.println(matrix[i]);
 //            }
+            if(matrix[t].values[0] == 1 || matrix[t].values[0] == -1) {
+                result.add(1);
+                System.out.println(1);
+                next = true;
+                continue;
+            }
             n = SparseVector.rowEl(matrix, t, n);
             if(entryT != matrix[t].getFirstValue() || next) {
                 t--;
                 next = false;
             }else {
                 next = true;
-                result.add(entryT);
+                result.add(Math.abs(entryT));
+                System.out.println(entryT);
             }
             entryT = next ? 0 : matrix[t+1].getFirstValue();
 //            System.out.println("After row elimination:");
