@@ -41,6 +41,18 @@ public class SparseVector implements Comparable<SparseVector> {
         return new SparseVector(length, capacity);
     }
 
+    public SparseVector clone() {
+        SparseVector v = new SparseVector(length, indices.length);
+        int[] _indices = new int[indices.length];
+        int[] _values = new int[values.length];
+        v.occupation = occupation;
+        System.arraycopy(indices, 0, _indices, 0, occupation);
+        System.arraycopy(values, 0, _values, 0, occupation);
+        v.indices = _indices;
+        v.values = _values;
+        return v;
+    }
+
     private int size(int length, int capacity) throws Exception {
         if(capacity > length) throw new Exception("Capacity must be less than length: " + capacity + " " + length);
         if(capacity < 0) throw new Exception("Capacity must be a non-negative number: " + capacity);
@@ -73,7 +85,7 @@ public class SparseVector implements Comparable<SparseVector> {
         }
     }
 
-    private void insert(int k, int i, int value) {
+    public void insert(int k, int i, int value) {
         if(value == 0) {
             return;
         }
@@ -240,61 +252,56 @@ public class SparseVector implements Comparable<SparseVector> {
         int[] values = new int[indices.length];
         int occupation = 0;
         int l = 0;
-        for(int i = 0, k = 0; i < v.occupation || k < w.occupation;) {
-            if(i >= v.occupation) {
-                if(b * w.values[k] != 0) {
-                    indices[l] = w.indices[k];
-                    values[l] = b * w.values[k];
-                }else {
-                    l--;
-                    occupation--;
+        int i = 0, k = 0;
+        for(; i < v.occupation && k < w.occupation;) {
+            if(v.indices[i] == w.indices[k]) {
+                if(a * v.values[i] + b * w.values[k] != 0) {
+                    indices[l] = v.indices[i];
+                    values[l] = a * v.values[i] + b * w.values[k];
+                    l++;
+                    occupation++;
                 }
+                i++;
                 k++;
-            }else if(k >= w.occupation) {
+            }else if(v.indices[i] < w.indices[k]) {
+                // add v
                 if(a * v.values[i] != 0) {
                     indices[l] = v.indices[i];
                     values[l] = a * v.values[i];
-                }else {
-                    l--;
-                    occupation--;
+                    l++;
+                    occupation++;
                 }
                 i++;
             }else {
-                if(v.indices[i] == w.indices[k]) {
-                    if(a  * v.values[i] + b * w.values[k] != 0) {
-                        indices[l] = v.indices[i];
-                        values[l] = a * v.values[i] + b * w.values[k];
-                    }else {
-                        l--;
-                        occupation--;
-                    }
-                    i++;
-                    k++;
-                }else if(v.indices[i] < w.indices[k]) {
-                    // add v
-                    if(a * v.values[i] != 0) {
-                        indices[l] = v.indices[i];
-                        values[l] = a * v.values[i];
-                    }else {
-                        l--;
-                        occupation--;
-                    }
-                    i++;
-                }else {
-                    // add w
-                    if(b * w.values[k] != 0) {
-                        indices[l] = w.indices[k];
-                        values[l] = b * w.values[k];
-                    }else {
-                        l--;
-                        occupation--;
-                    }
-                    k++;
+                // add w
+                if(b * w.values[k] != 0) {
+                    indices[l] = w.indices[k];
+                    values[l] = b * w.values[k];
+                    l++;
+                    occupation++;
                 }
+                k++;
             }
-            occupation++;
-            l++;
         }
+        for(; i < v.occupation;) {
+            if(a * v.values[i] != 0) {
+                indices[l] = v.indices[i];
+                values[l] = a * v.values[i];
+                l++;
+                occupation++;
+            }
+            i++;
+        }
+        for(; k < w.occupation;) {
+            if(b * w.values[k] != 0) {
+                indices[l] = w.indices[k];
+                values[l] = b * w.values[k];
+                l++;
+                occupation++;
+            }
+            k++;
+        }
+
         SparseVector res = new SparseVector(v.length);
         res.indices = indices;
         res.values = values;

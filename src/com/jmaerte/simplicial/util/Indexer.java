@@ -10,6 +10,14 @@ public class Indexer {
         indices = new int[init];
     }
 
+    public String toString() {
+        String s = "[";
+        for(int i = 0; i < occupation; i++) {
+            s+= indices[i] + "" + (occupation != i + 1 ?", ":"");
+        }
+        return s + "]";
+    }
+
     public void add(int i) {
         if(i < 0) {
             new Exception("Index out of Bounds: " + i).printStackTrace();

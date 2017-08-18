@@ -74,13 +74,55 @@ public class Homology {
         // Loading Options. For more information take a look at Readme.md.
 
 
-        // example:
+        // example 0:
+//        ArrayList<SparseVector> rows0 = new ArrayList<>();
+//        SparseVector v01 = new SparseVector(4);
+//        SparseVector v02 = new SparseVector(4);
+//        SparseVector v03 = new SparseVector(4);
+//        v01.occupation = 4;
+//        v01.indices = new int[]{0,1,2,3};
+//        v01.values = new int[]{8,9,10,11};
+//        v02.occupation = 4;
+//        v02.indices = new int[]{0,1,2,3};
+//        v02.values = new int[]{17,80,10,7};
+//        v03.occupation = 4;
+//        v03.indices = new int[]{0,1,2,3};
+//        v03.values = new int[]{6,9,2,8};
+//        rows0.add(v01);
+//        rows0.add(v02);
+//        rows0.add(v03);
+//        Vector2D<Integer, Integer>[] arr1 = Simplicial.smith(new Vector4D<>(0, new int[0], new SparseVector[0], rows0), true);
+//        for(Vector2D<Integer, Integer> v : arr1) {
+//            System.out.println(v);
+//        }
+//        System.exit(0);
+
+        // example 1:
+//        ArrayList<SparseVector> rows1 = new ArrayList<>();
+//        SparseVector v11 = new SparseVector(2);
+//        SparseVector v12 = new SparseVector(2);
+//        v11.occupation = 2;
+//        v11.indices = new int[]{0,1};
+//        v11.values = new int[]{2,4};
+//        v12.occupation = 2;
+//        v12.indices = new int[]{0,1};
+//        v12.values = new int[]{-2,6};
+//
+//        rows1.add(v11);
+//        rows1.add(v12);
+//        Number[] arr1 = Simplicial.smith(new Vector4D<>(0, new int[0], new SparseVector[0], rows1), true);
+//        for(Number n : arr1) {
+//            System.out.println("simp: " + n);
+//        }
+//        System.exit(0);
+
+//        // example 2:
 //        ArrayList<SparseVector> rows = new ArrayList<>();
 //        SparseVector v1 = new SparseVector(3);
 //        SparseVector v2 = new SparseVector(3);
 //        SparseVector v3 = new SparseVector(3);
 //        v1.indices = new int[]{0,1,2};
-//        v1.values = new int[]{2,5,4};
+//        v1.values = new int[]{2,4,4};
 //        v1.occupation = 3;
 //        v2.indices = new int[]{0,1,2};
 //        v2.values = new int[]{-6,6,12};
@@ -91,9 +133,32 @@ public class Homology {
 //        rows.add(v1);
 //        rows.add(v2);
 //        rows.add(v3);
-//        Number[] arr = Simplicial.smith(new Vector4D<>(0, new int[0], new SparseVector[0], rows));
-//        for(Number n : arr) {
-//            System.out.println("simp: " + n);
+//        Vector2D<Integer, Integer>[] arr = Simplicial.smith(new Vector4D<>(0, new int[0], new SparseVector[0], rows), true);
+//        for(Vector2D<Integer, Integer> v : arr) {
+//            System.out.println(v);
+//        }
+//        System.exit(0);
+
+//        // example 3:
+//        ArrayList<SparseVector> rows2 = new ArrayList<>();
+//        SparseVector v21 = new SparseVector(3);
+//        SparseVector v22 = new SparseVector(3);
+//        SparseVector v23 = new SparseVector(3);
+//        v21.occupation = 2;
+//        v22.occupation = 3;
+//        v23.occupation = 2;
+//        v21.indices = new int[]{0,2};
+//        v22.indices = new int[]{0,1,2};
+//        v23.indices = new int[]{0,1};
+//        v21.values = new int[]{2,5};
+//        v22.values = new int[]{4,1,2};
+//        v23.values = new int[]{6,2};
+//        rows2.add(v21);
+//        rows2.add(v22);
+//        rows2.add(v23);
+//        Vector2D<Integer, Integer>[] arr = Simplicial.smith(new Vector4D<>(0, new int[0], new SparseVector[0], rows2), true);
+//        for(Vector2D<Integer, Integer> v : arr) {
+//            System.out.println(v);
 //        }
 //        System.exit(0);
 

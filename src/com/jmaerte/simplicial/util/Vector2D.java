@@ -13,4 +13,8 @@ public class Vector2D <T,K> {
         this.y = y;
     }
 
+    public String toString() {
+        return "(" + x + ", " + y + ")";
+    }
+
 }

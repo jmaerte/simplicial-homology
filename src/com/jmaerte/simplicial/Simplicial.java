@@ -47,9 +47,9 @@ public class Simplicial {
 
         // Create a cache
         SetList<Wrapper>[] cache = new SetList[2];
-        Number[][] smithCache = new Number[][]{
-                new Number[0],
-                new Number[0]
+        Vector2D<Integer, Integer>[][] smithCache = new Vector2D[][]{
+                new Vector2D[0],
+                new Vector2D[0]
         };
 
         // Adding empty set.
@@ -61,17 +61,11 @@ public class Simplicial {
         for(int k = 1; k <= maxSize; k++) {
             generate(k, cache[1]);
             System.out.println("Found " + cache[1].size() + " faces of dimension " + (k-1));
-            smithCache[0] = smithCache[1];
             // the calculated function is del_k : C_k -> C_(k-1).
-            Vector4D<Integer, int[], SparseVector[], ArrayList<SparseVector>> boundary =  boundary(cache[0], cache[1]);
-            Number[] heap = smith(boundary);
-            smithCache[1] = new Number[heap.length + 1];
-            smithCache[1][0] = boundary.y.length;
-            //smithCache[1] is the array, such that the first entry is a number of ones and after there is the block of other smith normal form entries.
-//            for(SparseVector v : boundary.w) {
-//                System.out.println(v);
-//            }
+            Vector2D<Integer, Integer>[] heap = smith(boundary(cache[0], cache[1]), false);
+            smithCache[1] = heap;
             cache[0] = cache[1];
+            smithCache[0] = smithCache[1];
             cache[1] = new SetList<>();
         }
 
@@ -151,9 +145,8 @@ public class Simplicial {
             // genau die position, an welcher p stehen müsste.
             int p = binarySearch(doneCols, ri, done);
             if(p < done && doneCols[p] == ri) {
-                //TODO: Eliminiere den Eintrag a_i,ri durch zeilenaddition von rows[p] auf die aktuelle Zeile.
-                vector.add(rows[p], - vector.getFirstValue() * rows[p].getFirstValue()); // we can use multiplication here, because rows[p][pi] = +-1
-//                vector = SparseVector.linear(1, vector, - vector.getFirstValue() * rows[p].getFirstValue(), rows[p]);
+//                vector.add(rows[p], - vector.getFirstValue() * rows[p].getFirstValue()); // we can use multiplication here, because rows[p][pi] = +-1
+                vector = SparseVector.linear(1, vector, - vector.getFirstValue() * rows[p].getFirstValue(), rows[p]);
                 i--;
                 last = vector;
                 generate = false;
@@ -175,143 +168,252 @@ public class Simplicial {
         return new Vector4D<>(done, doneCols, rows, heap);
     }
 
-    public static Number[] smith(Vector4D<Integer, int[], SparseVector[], ArrayList<SparseVector>> boundary) {
+    public static Vector2D<Integer, Integer>[] smith(Vector4D<Integer, int[], SparseVector[], ArrayList<SparseVector>> boundary, boolean print) {
         int done = boundary.x;
         int[] doneCols = boundary.y;
         SparseVector[] rows = boundary.z;
         SparseVector[] matrix = new SparseVector[boundary.w.size()];
+        int n = matrix.length;
         for(int i = 0; i < boundary.w.size(); i++) {
-            matrix[i] = boundary.w.get(i);
+            if(boundary.w.get(i).occupation == 0) {
+                n--;
+            }else {
+                matrix[i - (matrix.length - n)] = boundary.w.get(i);
+            }
         }
         System.out.println(matrix.length);
-        // TODO: Maybe erase this again: (it doesnt really affect this lines. f.e. in Chess 7x7 it hast 6/11 and 19/3972. Not really effective. Still takes up 500ms.
-//        for(int l = 0; l < matrix.size(); l++) {
-//            SparseVector v = matrix.get(l);
-//            if(v.getFirstValue() == 0) {
-//                matrix.remove(l);
-//                continue;
-//            }
-//            int i = v.getFirstIndex();
-//            int k = binarySearch(doneCols, i, done);
-//            if(k < done && doneCols[k] == i) {
-//                v.add(rows[k], - v.getFirstValue() * rows[k].getFirstValue());
-//                l--;
-//            }
-//        }
-        // End of maybe erase.
-        // Hypothetical.
 
+        // ALGORITHM:
 
-        // 1ms runtime execution. This is the standard procedure in the algorithm.
-//        if(matrix.size() == 0) return new Number[0];
-//        long now = System.currentTimeMillis();
-//        Collections.sort(matrix, new FirstElementSorter());
-//        int i = 0;
-//        int firstIndex = matrix.get(0).getFirstIndex();
-//        while(matrix.get(i).getFirstIndex() == firstIndex) {
-//            i++;
-//        }
-//        int[] values = new int[i];
-//        for(int j = 0; j < i; j++) {
-//            values[j] = matrix.get(j).getFirstValue();
-//        }
-//        System.out.println(Utils.gcd(values));
-//        System.out.println(System.currentTimeMillis() - now + "ms");
-//        System.exit(0);
-        ArrayList<Integer> result = new ArrayList<>();
-        int entryT = 0;
-        boolean next = false;
-        int n = matrix.length;
+        ArrayList<Vector2D<Integer, Integer>> result = new ArrayList<>();
+        Vector2D<Integer, Integer> last = new Vector2D<>(done, 1);
         for(int t = 0; t < n; t++) {
-//            System.out.println("Step " + t + ", entryT: " + entryT);
-//            for(int i = 0; i < n; i++) {
-//                System.out.println(matrix[i]);
-//            }
+            Indexer idx = new Indexer(n-t);
+
+            if(print) {
+                System.out.println("Start:");
+                for(SparseVector vec : matrix) System.out.println(vec);
+                System.out.println(idx);
+            }
 
             int j = -1;
-            Indexer idx = new Indexer(n-t);
             for(int i = t; i < n; i++) {
-                if(j < 0 || matrix[i].getFirstIndex() < j) {
-                    j = matrix[i].getFirstIndex();
+                if(matrix[i].occupation == 0) {
+                    SparseVector v = matrix[i];
+                    matrix[i] = matrix[--n];
+                    matrix[n] = v;
+                    i--;
+                }else if(matrix[i].indices[0] < j || j < 0) {
                     idx.empty();
                     idx.add(i);
-                }else if(matrix[i].getFirstIndex() == j) {
+                    j = matrix[i].indices[0];
+                }else if(matrix[i].indices[0] == j) {
                     idx.add(i);
                 }
             }
-            if(j == -1 || idx.isEmpty()) continue;
-            int k = idx.get(0);
-            // swap row t with row k
-            if(k != t) {
-                SparseVector temp = matrix[t];
-                matrix[t] = matrix[k];
-                matrix[k] = temp;
-                idx.removePos(0);
-                idx.add(t);
-            }
-            for(int h = 0; h < idx.occupation; h++) {
-                int l = idx.get(h);
-                if(l != t) {
-                    if(Math.abs(matrix[t].values[0]) != 1) {
-                        Vector3D<Integer, Integer, Integer> gcd = Utils.gcd(matrix[t].getFirstValue(), matrix[l].getFirstValue());
-                        int alpha = gcd.y;
-                        int beta = gcd.z;
-                        int gcdVal = gcd.x;
-                        int x = matrix[l].getFirstValue() / gcdVal;
-                        int y = matrix[t].getFirstValue() / gcdVal;
-//                    System.out.println("k = " + k + ", l = " + l + ", a = " + matrix[t].getFirstValue() + ", b = " + matrix[l].getFirstValue() + ", x = " + x + ", y = " + y);
-                        SparseVector newT = SparseVector.linear(alpha, matrix[t], beta, matrix[l]);
-                        matrix[l] = SparseVector.linear(y, matrix[l], -1 * x, matrix[t]);
-                        matrix[t] = newT;
-                        if(matrix[l].occupation == 0) {
-                            System.out.println("finalize");
-                            if(idx.get(idx.occupation - 1) == n-1) {
-                                h--;
-                                idx.removePos(idx.occupation - 1);
-                            }
-                            SparseVector v = matrix[n-1];
-                            matrix[--n] = matrix[l];
-                            matrix[l] = v;
-                        }
-                    }else {
-                        matrix[l] = SparseVector.linear(1, matrix[l], - matrix[l].values[0] * matrix[t].values[0], matrix[t]);
+            if(j < 0) break; // maybe also catch if idx.isEmpty()
+            SparseVector curr = matrix[t].clone();      //
+            matrix[t] = matrix[idx.indices[0]].clone(); // Without restriction:
+            matrix[idx.indices[0]] = curr;              // a_(t,j) != 0
+            idx.removePos(0);                         //
+            // idx holds all the indices of rows, that have a nnz entry in same column,
+            // where row t has its trailing nnz entry after reordering. (j)
+
+            // in turns: first gcd the column entries, until the column j only contains nnz entry at (t,j).
+            // Then eliminate row afap.
+            while(true) {
+                if(print) {
+                    System.out.println("begin while:");
+                    for(SparseVector vec : matrix) System.out.println(vec);
+                    System.out.println(idx);
+                }
+
+                // eliminate column with gcd procedure:
+                for(int i = 0; i < idx.occupation; i++) {
+                    int a = matrix[t].values[0];
+                    int b = matrix[idx.indices[i]].values[0];
+                    Vector3D<Integer, Integer, Integer> gcdTuple = Utils.gcd(a,b);
+                    int gcd = gcdTuple.x;
+                    int alpha = gcdTuple.y;
+                    int beta = gcdTuple.z;
+                    int x = b / gcd;
+                    int y = a / gcd;
+                    SparseVector newRow = SparseVector.linear(alpha, matrix[t], beta, matrix[idx.indices[i]]);
+                    matrix[idx.indices[i]] = SparseVector.linear(y, matrix[idx.indices[i]], -x, matrix[t]);
+                    matrix[t] = newRow;
+                }
+                idx.empty();
+                // Column j is empty except place (t,j). So try to eliminate row:
+                int k = -1;
+                for(int i = 1; i < matrix[t].occupation; i++) {
+                    matrix[t].values[i] = matrix[t].values[i] % matrix[t].values[0];
+                    if(matrix[t].values[i] == 0) {
+                        matrix[t].remove(i);
+                        i--;
+                    }else if(k < 0 || matrix[t].values[k] > matrix[t].values[i]) {
+                        k = i;
                     }
+//                    int c = matrix[t].values[i];
+//                    if(c % matrix[t].values[0] == 0) {
+//                        matrix[t].remove(i);
+//                        i--;
+//                    }else {
+//                        if(k < 0 || matrix[t].values[k] > c ) {
+//                            k = i;
+//                        }
+//                        matrix[t].values[i] = c % matrix[t].values[0];
+//                    }
+                }
+                if(k > 0) { // Therefore it exists a nnz entry in row t besides the one in col j after elimination.
+                    // gcd column:
+                    int a = matrix[t].values[0];
+                    int b = matrix[t].values[k];
+                    Vector3D<Integer, Integer, Integer> gcdTuple = Utils.gcd(a,b);
+                    int gcd = gcdTuple.x;
+                    int beta = gcdTuple.z;
+                    int y = a / gcd;
+                    for(int i = t + 1; i < n; i++) {
+                        if(matrix[i].occupation == 0) {
+                            SparseVector v = matrix[i];
+                            matrix[i] = matrix[--n];
+                            matrix[n] = v;
+                            i--;
+                        }else {
+                            int l = matrix[i].index(matrix[t].indices[k]);
+                            if(l < matrix[i].occupation && matrix[i].indices[l] == matrix[t].indices[k]) {
+                                int c = matrix[i].values[l];
+                                matrix[i].values[l] *= y;
+                                if(beta != 0) { // sufficient, because matrix[i].values[l] != 0
+                                    matrix[i].insert(0, matrix[t].indices[0], beta * matrix[i].values[l]);
+                                    idx.add(i);
+                                }
+                            }
+                        }
+                    }
+                    matrix[t].values[0] = gcd;
+                    matrix[t].remove(k);
+                }
+
+                if(print) {
+                    System.out.println("end while:");
+                    for(SparseVector vec : matrix) System.out.println(vec);
+                    System.out.println(idx);
+                }
+
+                if(matrix[t].occupation == 1 && idx.isEmpty()) {
+                    if(last == null) last = new Vector2D<>(1, Math.abs(matrix[t].values[0]));
+                    else if(last.y == Math.abs(matrix[t].values[0])) last.x++;
+                    else {
+                        if(last.x > 0) result.add(last);
+                        last = new Vector2D<>(1, Math.abs(matrix[t].values[0]));
+                    }
+                    break;
                 }
             }
-            // column is eliminated.
-//            System.out.println("After column elimination:");
-//            for(int i = 0; i < n; i++) {
-//                System.out.println(matrix[i]);
-//            }
-            if(matrix[t].values[0] == 1 || matrix[t].values[0] == -1) {
-                result.add(1);
-                System.out.println(1);
-                next = true;
-                continue;
-            }
-            n = SparseVector.rowEl(matrix, t, n);
-            if(entryT != matrix[t].getFirstValue() || next) {
-                t--;
-                next = false;
-            }else {
-                next = true;
-                result.add(Math.abs(entryT));
-                System.out.println(entryT);
-            }
-            entryT = next ? 0 : matrix[t+1].getFirstValue();
-//            System.out.println("After row elimination:");
-//            for(int i = 0; i < n; i++) {
-//                System.out.println(matrix[i]);
-//            }
         }
+        if(last != null) result.add(last);
 
-        System.out.println(n);
-        Number[] resultArr = new Number[result.size()];
+        Vector2D<Integer, Integer>[] resultArr = new Vector2D[result.size()];
         System.out.println(result);
         for(int i = 0; i < resultArr.length; i++) {
             resultArr[i] = result.get(i);
         }
         return resultArr;
+
+
+//        int entryT = 0;
+//        boolean next = false;
+//        int n = matrix.length;
+//        for(int t = 0; t < n; t++) {
+////            System.out.println("Step " + t + ", entryT: " + entryT);
+////            for(int i = 0; i < n; i++) {
+////                System.out.println(matrix[i]);
+////            }
+//
+//            int j = -1;
+//            Indexer idx = new Indexer(n-t);
+//            for(int i = t; i < n; i++) {
+//                if(j < 0 || matrix[i].getFirstIndex() < j) {
+//                    j = matrix[i].getFirstIndex();
+//                    idx.empty();
+//                    idx.add(i);
+//                }else if(matrix[i].getFirstIndex() == j) {
+//                    idx.add(i);
+//                }
+//            }
+//            if(j == -1 || idx.isEmpty()) continue;
+//            int k = idx.get(0);
+//            // swap row t with row k
+//            if(k != t) {
+//                SparseVector temp = matrix[t];
+//                matrix[t] = matrix[k];
+//                matrix[k] = temp;
+//                idx.removePos(0);
+//                idx.add(t);
+//            }
+//            for(int h = 0; h < idx.occupation; h++) {
+//                int l = idx.get(h);
+//                if(l != t) {
+//                    if(Math.abs(matrix[t].values[0]) != 1) {
+//                        Vector3D<Integer, Integer, Integer> gcd = Utils.gcd(matrix[t].getFirstValue(), matrix[l].getFirstValue());
+//                        int alpha = gcd.y;
+//                        int beta = gcd.z;
+//                        int gcdVal = gcd.x;
+//                        int x = matrix[l].getFirstValue() / gcdVal;
+//                        int y = matrix[t].getFirstValue() / gcdVal;
+////                    System.out.println("k = " + k + ", l = " + l + ", a = " + matrix[t].getFirstValue() + ", b = " + matrix[l].getFirstValue() + ", x = " + x + ", y = " + y);
+//                        SparseVector newT = SparseVector.linear(alpha, matrix[t], beta, matrix[l]);
+//                        matrix[l] = SparseVector.linear(y, matrix[l], -1 * x, matrix[t]);
+//                        matrix[t] = newT;
+//                        if(matrix[l].occupation == 0) {
+//                            System.out.println("finalize");
+//                            if(idx.get(idx.occupation - 1) == n-1) {
+//                                h--;
+//                                idx.removePos(idx.occupation - 1);
+//                            }
+//                            SparseVector v = matrix[n-1];
+//                            matrix[--n] = matrix[l];
+//                            matrix[l] = v;
+//                        }
+//                    }else {
+//                        matrix[l] = SparseVector.linear(1, matrix[l], - matrix[l].values[0] * matrix[t].values[0], matrix[t]);
+//                    }
+//                }
+//            }
+//            // column is eliminated.
+////            System.out.println("After column elimination:");
+////            for(int i = 0; i < n; i++) {
+////                System.out.println(matrix[i]);
+////            }
+//            if(matrix[t].values[0] == 1 || matrix[t].values[0] == -1) {
+//                result.add(1);
+//                System.out.println(1);
+//                next = true;
+//                continue;
+//            }
+//            n = SparseVector.rowEl(matrix, t, n);
+//            if(entryT != matrix[t].getFirstValue() || next) {
+//                t--;
+//                next = false;
+//            }else {
+//                next = true;
+//                result.add(Math.abs(entryT));
+//                System.out.println(entryT);
+//            }
+//            entryT = next ? 0 : matrix[t+1].getFirstValue();
+////            System.out.println("After row elimination:");
+////            for(int i = 0; i < n; i++) {
+////                System.out.println(matrix[i]);
+////            }
+//        }
+//
+//        System.out.println(n);
+//        Number[] resultArr = new Number[result.size()];
+//        System.out.println(result);
+//        for(int i = 0; i < resultArr.length; i++) {
+//            resultArr[i] = result.get(i);
+//        }
+//        return resultArr;
     }
 
     public int binarySearch(ArrayList<Integer> arr, int i, int max) {
@@ -341,15 +443,24 @@ public class Simplicial {
     }
 
     public int binarySearch(ArrayList<Wrapper> list, Wrapper element, Comparator<Wrapper> comparator) {
-        int low = 0;
-        int high = list.size() - 1;
-        while(low <= high) {
-            int mid = low + (high - low)/2;
-            if(comparator.compare(element, list.get(mid)) < 0) high = mid - 1;
-            else if(comparator.compare(element, list.get(mid)) > 0) low = mid + 1;
+        int left = 0;
+        int right = list.size();
+        while(left < right) {
+            int mid = (left + right) / 2;
+            if(comparator.compare(list.get(mid), element) > 0) right = mid;
+            else if(comparator.compare(list.get(mid), element) < 0) left = mid + 1;
             else return mid;
         }
-        return -1;
+        return left;
+//        int low = 0;
+//        int high = list.size() - 1;
+//        while(low <= high) {
+//            int mid = low + (high - low)/2;
+//            if(comparator.compare(element, list.get(mid)) < 0) high = mid - 1;
+//            else if(comparator.compare(element, list.get(mid)) > 0) low = mid + 1;
+//            else return mid;
+//        }
+//        return -1;
     }
 
     public static class SizeSorter implements Comparator<int[]> {
