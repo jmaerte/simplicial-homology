@@ -73,7 +73,17 @@ public class Homology {
 //        }
         // Loading Options. For more information take a look at Readme.md.
 
-
+        // check if linear works.
+//        SparseVector v = new SparseVector(3);
+//        SparseVector w = new SparseVector(3);
+//        v.indices = new int[]{1,2};
+//        v.values = new int[]{2,2};
+//        v.occupation = 2;
+//        w.indices = new int[]{0,2};
+//        w.values = new int[]{1,1};
+//        w.occupation = 2;
+//        System.out.println(SparseVector.linear(1, v, -2, w));
+//        System.exit(0);
         // example 0:
 //        ArrayList<SparseVector> rows0 = new ArrayList<>();
 //        SparseVector v01 = new SparseVector(4);
@@ -133,10 +143,8 @@ public class Homology {
 //        rows.add(v1);
 //        rows.add(v2);
 //        rows.add(v3);
-//        Vector2D<Integer, Integer>[] arr = Simplicial.smith(new Vector4D<>(0, new int[0], new SparseVector[0], rows), true);
-//        for(Vector2D<Integer, Integer> v : arr) {
-//            System.out.println(v);
-//        }
+//        Smith arr = Simplicial.smith(new Vector4D<>(0, new int[0], new SparseVector[0], rows), true);
+//        System.out.println(arr);
 //        System.exit(0);
 
 //        // example 3:
@@ -156,10 +164,7 @@ public class Homology {
 //        rows2.add(v21);
 //        rows2.add(v22);
 //        rows2.add(v23);
-//        Vector2D<Integer, Integer>[] arr = Simplicial.smith(new Vector4D<>(0, new int[0], new SparseVector[0], rows2), true);
-//        for(Vector2D<Integer, Integer> v : arr) {
-//            System.out.println(v);
-//        }
+//        System.out.println(Simplicial.smith(new Vector4D<>(0, new int[0], new SparseVector[0], rows2), true));
 //        System.exit(0);
 
         for(int i = 0; i < args.length; i++) {

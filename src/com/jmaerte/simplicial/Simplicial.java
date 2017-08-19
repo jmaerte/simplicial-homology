@@ -47,9 +47,9 @@ public class Simplicial {
 
         // Create a cache
         SetList<Wrapper>[] cache = new SetList[2];
-        Vector2D<Integer, Integer>[][] smithCache = new Vector2D[][]{
-                new Vector2D[0],
-                new Vector2D[0]
+        Smith[] smithCache = new Smith[]{
+                new Smith(0),
+                new Smith(0)
         };
 
         // Adding empty set.
@@ -60,10 +60,11 @@ public class Simplicial {
         // Dimension is k-1
         for(int k = 1; k <= maxSize; k++) {
             generate(k, cache[1]);
+//            System.out.println(cache[1]);
             System.out.println("Found " + cache[1].size() + " faces of dimension " + (k-1));
             // the calculated function is del_k : C_k -> C_(k-1).
-            Vector2D<Integer, Integer>[] heap = smith(boundary(cache[0], cache[1]), false);
-            smithCache[1] = heap;
+            Smith currSmith = smith(boundary(cache[0], cache[1]), false);
+            smithCache[1] = currSmith;
             cache[0] = cache[1];
             smithCache[0] = smithCache[1];
             cache[1] = new SetList<>();
@@ -107,68 +108,123 @@ public class Simplicial {
 
 //    public void boundary(SparseMatrix boundary, SetList<Wrapper> lower, SetList<Wrapper> higher) {
     public Vector4D<Integer, int[], SparseVector[], ArrayList<SparseVector>> boundary(SetList<Wrapper> lower, SetList<Wrapper> higher) {
-        ArrayList<SparseVector> heap = new ArrayList<>();
+        ArrayList<SparseVector> remaining = new ArrayList<>();
         int[] doneCols = new int[higher.size()];
         SparseVector[] rows = new SparseVector[doneCols.length];
         int done = 0;
         int zeros = 0;
-        boolean generate = true;
-        SparseVector last = null;
+
         for(int i = 0; i < higher.size(); i++) {
-            SparseVector vector;
-            if(generate) {
-                int[] data = higher.get(i).data;
-                vector = new SparseVector(lower.size(), data.length);
-                for(int l = 0; l < data.length; l++) {
-                    int[] element = new int[data.length - 1];
-                    for(int k = 0; k < data.length; k++) {
-                        if(k == l) continue;
-                        if(k > l) element[k-1] = data[k];
-                        else element[k] = data[k];
-                    }
-                    Wrapper wrapper = new Wrapper(element);
-                    int j = binarySearch(lower, wrapper, wrapperComparator);
-                    int cont = (l%2 == 0) ? 1 : -1;
+            int[] data = higher.get(i).data;
+            SparseVector vector = new SparseVector(lower.size(), data.length);
+            for(int l = 0; l < data.length; l++) {
+                int[] element = new int[data.length - 1];
+                for(int k = 0; k < data.length; k++) {
+                    if(k == l) continue;
+                    if(k > l) element[k-1] = data[k];
+                    else element[k] = data[k];
+                }
+                Wrapper wrapper = new Wrapper(element);
+                int j = binarySearch(lower, wrapper, wrapperComparator);
+                int cont = (l%2 == 0) ? 1 : -1;
 //                boundary.set(i,j, cont);// Here we see: We generate the matrix row-wise, because j depends on l and l is the incrementing index.
-                    vector.set(j, cont);
+                vector.set(j, cont);
+            }
+            for(int k = 0; k < vector.occupation; ) {
+                int p = binarySearch(doneCols, vector.indices[k], done);
+                if(p < done && doneCols[p] == vector.indices[k]) {
+                    vector.add(rows[p], - vector.values[k] * rows[p].values[0]);
+                }else k++;
+            }
+            if(vector.occupation == 0) continue;
+            if(vector.values[0] == 1 || vector.values[0] == -1) {
+                int p = binarySearch(doneCols, vector.indices[0], done);
+                System.arraycopy(doneCols, p, doneCols, p + 1, done - p);
+                doneCols[p] = vector.indices[0];
+                System.arraycopy(rows, p, rows, p + 1, done - p);
+                rows[p] = vector;
+                done++;
+                for(SparseVector v : remaining) {
+                    int j = v.index(vector.indices[0]);
+                    if(j < v.occupation && v.indices[j] == vector.indices[0]) {
+                        v.add(vector, - v.values[j] * vector.values[0]);
+                    }
                 }
             }else {
-                vector = last;
-            }
-            generate = true;
-            if(vector.getFirstValue() == 0) {
-                zeros++;
-                continue;
-            }
-            int ri = vector.getFirstIndex();
-            //p = done + 1, falls p größer als alle rj. Ansonsten ist 0 <= p <= done und damit entweder enthalten oder
-            // genau die position, an welcher p stehen müsste.
-            int p = binarySearch(doneCols, ri, done);
-            if(p < done && doneCols[p] == ri) {
-//                vector.add(rows[p], - vector.getFirstValue() * rows[p].getFirstValue()); // we can use multiplication here, because rows[p][pi] = +-1
-                vector = SparseVector.linear(1, vector, - vector.getFirstValue() * rows[p].getFirstValue(), rows[p]);
-                i--;
-                last = vector;
-                generate = false;
-            }else {
-                if(Math.abs(vector.getFirstValue()) != 1) {
-                    heap.add(vector);
-                }else {
-                    // Insert the new vector into the arrays.
-                    System.arraycopy(doneCols, p, doneCols, p + 1, done - p);
-                    doneCols[p] = ri;
-                    System.arraycopy(rows, p, rows, p + 1, done - p);
-                    rows[p] = vector;
-                    done++;
-                }
+                remaining.add(vector);
             }
         }
+
+//        ArrayList<SparseVector> heap = new ArrayList<>();
+//        int[] doneCols = new int[higher.size()];
+//        SparseVector[] rows = new SparseVector[doneCols.length];
+//        int done = 0;
+//        int zeros = 0;
+//        boolean generate = true;
+//        SparseVector last = null;
+//        for(int i = 0; i < higher.size(); i++) {
+//            SparseVector vector;
+//            if(generate) {
+//                int[] data = higher.get(i).data;
+//                vector = new SparseVector(lower.size(), data.length);
+//                for(int l = 0; l < data.length; l++) {
+//                    int[] element = new int[data.length - 1];
+//                    for(int k = 0; k < data.length; k++) {
+//                        if(k == l) continue;
+//                        if(k > l) element[k-1] = data[k];
+//                        else element[k] = data[k];
+//                    }
+//                    Wrapper wrapper = new Wrapper(element);
+//                    int j = binarySearch(lower, wrapper, wrapperComparator);
+//                    int cont = (l%2 == 0) ? 1 : -1;
+////                boundary.set(i,j, cont);// Here we see: We generate the matrix row-wise, because j depends on l and l is the incrementing index.
+//                    vector.set(j, cont);
+//                }
+//            }else {
+//                vector = last;
+//            }
+//            generate = true;
+//            if(vector.getFirstValue() == 0) {
+//                zeros++;
+//                continue;
+//            }
+//            int ri = vector.getFirstIndex();
+//            //p = done + 1, falls p größer als alle rj. Ansonsten ist 0 <= p <= done und damit entweder enthalten oder
+//            // genau die position, an welcher p stehen müsste.
+//
+//            int p = binarySearch(doneCols, ri, done);
+//            if(p < done && doneCols[p] == ri) {
+//                vector.add(rows[p], - vector.getFirstValue() * rows[p].getFirstValue()); // we can use multiplication here, because rows[p][pi] = +-1
+////                vector = SparseVector.linear(1, vector, - vector.getFirstValue() * rows[p].getFirstValue(), rows[p]);
+//                i--;
+//                last = vector;
+//                generate = false;
+//            }else {
+//                if(Math.abs(vector.getFirstValue()) != 1) {
+//                    for(int l = 1; l < vector.occupation; l++) {
+//                        int h = binarySearch(doneCols, vector.indices[l], done);
+//                        if(h < done && doneCols[h] == vector.indices[l]) {
+//                            vector.add(rows[h], - vector.values[l] * rows[p].getFirstValue());
+//                            l--;
+//                        }
+//                    }
+//                    if(vector.occupation > 0) heap.add(vector);
+//                }else {
+//                    // Insert the new vector into the arrays.
+//                    System.arraycopy(doneCols, p, doneCols, p + 1, done - p);
+//                    doneCols[p] = ri;
+//                    System.arraycopy(rows, p, rows, p + 1, done - p);
+//                    rows[p] = vector;
+//                    done++;
+//                }
+//            }
+//        }
         System.out.println(done);
         System.out.println(zeros);
-        return new Vector4D<>(done, doneCols, rows, heap);
+        return new Vector4D<>(done, doneCols, rows, remaining);
     }
 
-    public static Vector2D<Integer, Integer>[] smith(Vector4D<Integer, int[], SparseVector[], ArrayList<SparseVector>> boundary, boolean print) {
+    public static Smith smith(Vector4D<Integer, int[], SparseVector[], ArrayList<SparseVector>> boundary, boolean print) {
         int done = boundary.x;
         int[] doneCols = boundary.y;
         SparseVector[] rows = boundary.z;
@@ -185,7 +241,7 @@ public class Simplicial {
 
         // ALGORITHM:
 
-        ArrayList<Vector2D<Integer, Integer>> result = new ArrayList<>();
+        Smith result = new Smith(16);
         Vector2D<Integer, Integer> last = new Vector2D<>(done, 1);
         for(int t = 0; t < n; t++) {
             Indexer idx = new Indexer(n-t);
@@ -212,10 +268,10 @@ public class Simplicial {
                 }
             }
             if(j < 0) break; // maybe also catch if idx.isEmpty()
-            SparseVector curr = matrix[t].clone();      //
-            matrix[t] = matrix[idx.indices[0]].clone(); // Without restriction:
-            matrix[idx.indices[0]] = curr;              // a_(t,j) != 0
-            idx.removePos(0);                         //
+            SparseVector curr = matrix[t];      //
+            matrix[t] = matrix[idx.indices[0]]; // Without restriction:
+            matrix[idx.indices[0]] = curr;      // a_(t,j) != 0
+            idx.removePos(0);                 //
             // idx holds all the indices of rows, that have a nnz entry in same column,
             // where row t has its trailing nnz entry after reordering. (j)
 
@@ -304,21 +360,16 @@ public class Simplicial {
                     if(last == null) last = new Vector2D<>(1, Math.abs(matrix[t].values[0]));
                     else if(last.y == Math.abs(matrix[t].values[0])) last.x++;
                     else {
-                        if(last.x > 0) result.add(last);
+                        result.addTo(last.y, last.x);
                         last = new Vector2D<>(1, Math.abs(matrix[t].values[0]));
                     }
                     break;
                 }
             }
         }
-        if(last != null) result.add(last);
-
-        Vector2D<Integer, Integer>[] resultArr = new Vector2D[result.size()];
+        if(last != null) result.addTo(last.y, last.x);
         System.out.println(result);
-        for(int i = 0; i < resultArr.length; i++) {
-            resultArr[i] = result.get(i);
-        }
-        return resultArr;
+        return result;
 
 
 //        int entryT = 0;
@@ -430,8 +481,12 @@ public class Simplicial {
     }
 
     public int binarySearch(int[] arr, int i, int max) {
+        return binarySearch(arr, i, 0, max);
+    }
+
+    public int binarySearch(int[] arr, int i, int min, int max) {
         if(max == 0 || i > arr[max - 1]) return max;
-        int left = 0;
+        int left = min;
         int right = max;
         while(left < right) {
             int mid = (left + right) / 2;
