@@ -150,6 +150,7 @@ public class Simplicial {
                         v.add(vector, - v.values[j] * vector.values[0]);
                     }
                 }
+                // TODO: Subtract from every vector in rows[p].
             }else {
                 remaining.add(vector);
             }
