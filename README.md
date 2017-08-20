@@ -32,7 +32,7 @@ After this first processing we go to the [Core Algorithm](#core) with our remain
 ## Commands <a name="cmd"></a>
 ### Program arguments
 For initializing a program argument one needs to type -<command> <parameters> after the program call in command line.<br>
-
+(Star after argument marks that it is necessary)
 
 | Command       | Description   |
 | ------------- | ------------- |
