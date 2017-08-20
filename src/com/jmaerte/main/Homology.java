@@ -101,10 +101,7 @@ public class Homology {
 //        rows0.add(v01);
 //        rows0.add(v02);
 //        rows0.add(v03);
-//        Vector2D<Integer, Integer>[] arr1 = Simplicial.smith(new Vector4D<>(0, new int[0], new SparseVector[0], rows0), true);
-//        for(Vector2D<Integer, Integer> v : arr1) {
-//            System.out.println(v);
-//        }
+//        System.out.println(Simplicial.smith(new Vector4D<>(0, new int[0], new SparseVector[0], rows0), true));
 //        System.exit(0);
 
         // example 1:
