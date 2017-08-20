@@ -18,7 +18,7 @@ Let A={a<sub>0</sub>,...,a<sub>k</sub>} be an element of C<sub>k</sub>, then we 
 Since we want ![equation](http://latex.codecogs.com/gif.latex?%5Cpartial_k%20%5Ccirc%20%5Cpartial_%7Bk-1%7D%20%3D%200) for every k > 0, we will set<br>
 ![equation](http://latex.codecogs.com/gif.latex?%5Cpartial_k%28e_A%29%20%3D%20%5Csum_%7Bi%20%3D%200%7D%5Ek%20%7B%28-1%29%5Ei%20e_%7BA%5Csetminus%5C%7Ba_i%5C%7D%7D%7D)
 <br>
-Furthermore we then define the k-th homology group as ![equation](http://latex.codecogs.com/gif.latex?H_k%28C%29%20%3D%20%7Bker%7E%5Cpartial_k%7D/%7Bim%7E%5Cpartial_%7Bk&plus;1%7D%7D)
+Furthermore we then define the k-th homology group as ![equation](http://latex.codecogs.com/gif.latex?H_k%28C%29%20%3D%20%7Bker%7E%5Cpartial_k%7D/%7Bim%7E%5Cpartial_%7Bk&plus;1%7D%7D)<br>
 This groups are finitely generated free abelian groups in our case. The program prints out the isomorphic direct sum of powers of cyclic groups such as Z<sub>n</sub> or Z.<br>
 ## How it works <a name="work"></a>
 We calculate the matrices of the boundary maps stated above.<br>
