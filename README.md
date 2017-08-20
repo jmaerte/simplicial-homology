@@ -31,9 +31,9 @@ After this first processing we go to the [Core Algorithm](#core) with our remain
 ## Core Algorithm <a name="core"></a>
 The long runtimes on bigger examples are mainly due to this algorithm.
 ### Proceeding
-Input: Matrix with arbitrary structure.
-Output: invariant factors of input matrix.
-Process: [Description here]
+**Input**: Matrix with arbitrary structure.<br>
+**Output**: invariant factors of input matrix.<br>
+**Process**: *[Description here]*
 ## Commands <a name="cmd"></a>
 ### Program arguments
 For initializing a program argument one needs to type -<command> <parameters> after the program call in command line.<br>
