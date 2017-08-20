@@ -6,7 +6,7 @@
 5. [Commands](#cmds)
 
 ## Input <a name="input"></a>
-The program takes a file input. The file should contain a name for the complex and the supersets in the complex.
+The program takes a file input. The file should contain a name for the complex and the supersets of it.
 For example one would safe the comlex C = {{1}, {2}, {3}, {1,2}, {1,3}, {2,3}, {1,2,3}, {4}} as the following content of a text file:
 C := [[1,2,3], [4]].<br>
 The program will then generate all subsets of the 'supersets' itself.
