@@ -34,5 +34,5 @@ After this first processing we go to the [Core Algorithm](#core) with our remain
 For initializing a program argument one needs to type -<command> <parameters> after the program call in command line.<br>
 | Command       | Description   |
 | ------------- | ------------- |
-| C path:string | C: Complex. This command determines the file, where to take the complex data from. NOTE: If your path contains spaces, please set double quotation marks ". |
+| C path:string | C: Complex. This command determines the file, where to take the complex data from.<br> NOTE: If your path contains spaces, please set double quotation marks ". |
 ### Flags
