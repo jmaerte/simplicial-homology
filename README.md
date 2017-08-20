@@ -36,5 +36,5 @@ For initializing a program argument one needs to type -<command> <parameters> af
 
 | Command       | Description   |
 | ------------- | ------------- |
-| **C** *path*:**string** | C: Complex. This command determines the file, where to take the complex data from.<br> NOTE: If your path contains spaces, please set double quotation marks ". |
+| **C** *path*:**string**\* | C: Complex. This command determines the file, where to take the complex data from.<br> NOTE: If your path contains spaces, please set double quotation marks ". |
 ### Flags
