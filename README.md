@@ -11,7 +11,7 @@ For example one would safe the comlex C = {{1}, {2}, {3}, {1,2}, {1,3}, {2,3}, {
 C := [[1,2,3], [4]].<br>
 The program will then generate all subsets of the 'supersets' itself.
 ## Output <a name="output"></a>
-The program constructs a chain complex through defining C<sub>k</sub> as all Sets contained by the simplicial complex with magnitude k+1.<br>
+The program constructs a chain complex through defining C<sub>k</sub> as all Sets contained by the simplicial complex C with magnitude k+1.<br>
 One says, that C<sub>k</sub> has dimension k. F.e. C<sub>-1</sub> = {Ø} is of dimension -1.<br>
 Further we define boundary maps ∂<sub>k</sub>: C<sub>k</sub> -> C<sub>k-1</sub> through the following mapping rule:<br>
 Let A={a<sub>0</sub>,...,a<sub>k</sub>} be an element of C<sub>k</sub>, then we formally consider e<sub>A</sub> a basis element of C<sub>k</sub>.<br>
