@@ -2,7 +2,7 @@
 1. [Input](#input)
 2. [Output](#output)
 3. [How it works](#work)
-4. [Core Algorithm](#core)
+4. [Core Algorithm(Smith Normalform)](#core)
 5. [Commands](#cmds)
 
 ## Input <a name="input"></a>
@@ -28,7 +28,7 @@ First: The current vector has a trailing invertible still. Then we put it to the
 Second: The current vector has no trailing invertible (equivalently: the absolute value of the trailing non-zero value in vector is not 1). Then we add the vector to our remaining matrix. This one is going to be the hard part.<br>
 While processing the matrix, we count how many vector has been added to the trailing invertible vectors. That is how many 1s we will certainly get in the smith normal form of our boundary matrix.<br>
 After this first processing we go to the [Core Algorithm](#core) with our remaining matrix, because through the row echelon form, we can just eliminate the rows, which have a trailing invertible, columnwise and get the identity matrix in the top-left block of our smith normal form. The top-right and top-left blocks are 0 by definition of the smith normal form. The bottom-right block will become the smith normal form of the remaining matrix.<br>
-## Core Algorithm <a name="core"></a>
+## Core Algorithm(Smith Normalform) <a name="core"></a>
 The long runtimes on bigger examples are mainly due to this algorithm.
 ### Proceeding
 **Input**: Matrix with arbitrary structure.<br>
