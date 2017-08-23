@@ -1,6 +1,8 @@
 package com.jmaerte.simplicial;
 
 import com.jmaerte.simplicial.util.*;
+
+import java.math.BigInteger;
 import java.util.*;
 
 /**
@@ -63,7 +65,7 @@ public class Simplicial {
 //            System.out.println(cache[1]);
             System.out.println("Found " + cache[1].size() + " faces of dimension " + (k-1));
             // the calculated function is del_k : C_k -> C_(k-1).
-            Smith currSmith = smith(boundary(cache[0], cache[1]), false);
+            Smith currSmith = smith(boundary(cache[0], cache[1], true), false);
             System.out.println(currSmith);
             smithCache[1] = currSmith;
             cache[0] = cache[1];
@@ -108,14 +110,22 @@ public class Simplicial {
     }
 
 //    public void boundary(SparseMatrix boundary, SetList<Wrapper> lower, SetList<Wrapper> higher) {
-    public Vector4D<Integer, int[], SparseVector[], ArrayList<SparseVector>> boundary(SetList<Wrapper> lower, SetList<Wrapper> higher) {
-        ArrayList<SparseVector> remaining = new ArrayList<>();
+    public Vector5D<Integer, int[], SparseVector[], SparseVector[], Integer> boundary(SetList<Wrapper> lower, SetList<Wrapper> higher, boolean printProgress) {
         int[] doneCols = new int[higher.size()];
         SparseVector[] rows = new SparseVector[doneCols.length];
+        SparseVector[] remaining = new SparseVector[doneCols.length];
+        int rem = 0;
         int done = 0;
         int zeros = 0;
 
+//        if(printProgress) {
+//            System.out.println("Generating " + higher.size() + "x" + lower.size() + " matrix.");
+//            System.out.print("Progressing row 0/" + higher.size());
+//        }
+
         for(int i = 0; i < higher.size(); i++) {
+//            if(printProgress) System.out.print('\r' + "Progressing row " + i + "/" + higher.size());
+            if(i > 0 && i%1000 == 0) System.gc();
             int[] data = higher.get(i).data;
             SparseVector vector = new SparseVector(lower.size(), data.length);
             for(int l = 0; l < data.length; l++) {
@@ -132,28 +142,37 @@ public class Simplicial {
                 vector.set(j, cont);
             }
             for(int k = 0; k < vector.occupation; ) {
+                if(k > 0 && k%1000 == 0) System.gc();
                 int p = binarySearch(doneCols, vector.indices[k], done);
                 if(p < done && doneCols[p] == vector.indices[k]) {
-                    vector.add(rows[p], - vector.values[k] * rows[p].values[0]);
-                }else k++;
+                    vector.add(rows[p], vector.values[k].multiply(BigInteger.valueOf(-1).multiply(rows[p].values[0])));
+                }else {
+                    k++;
+                }
             }
             if(vector.occupation == 0) continue;
-            if(vector.values[0] == 1 || vector.values[0] == -1) {
+            if(vector.values[0].abs().equals(BigInteger.ONE)) {
                 int p = binarySearch(doneCols, vector.indices[0], done);
                 System.arraycopy(doneCols, p, doneCols, p + 1, done - p);
                 doneCols[p] = vector.indices[0];
                 System.arraycopy(rows, p, rows, p + 1, done - p);
                 rows[p] = vector;
-                for(SparseVector v : remaining) {
+                for(int k = 0; k < rem; k++) {
+                    SparseVector v = remaining[k];
                     int j = v.index(vector.indices[0]);
                     if(j < v.occupation && v.indices[j] == vector.indices[0]) {
-                        v.add(vector, - v.values[j] * vector.values[0]);
+                        v.add(vector, v.values[j].multiply(vector.values[0]).multiply(BigInteger.valueOf(-1)));
+                        if(v.occupation == 0) {
+                            System.arraycopy(remaining, k + 1, remaining, k, rem - k);
+                            rem--;
+                        }
                     }
                 }
                 done++;
                 // TODO: Subtract from every vector in rows[p].
             }else {
-                remaining.add(vector);
+                remaining[rem] = vector;
+                rem++;
             }
         }
 
@@ -223,28 +242,30 @@ public class Simplicial {
 //        }
         System.out.println(done);
         System.out.println(zeros);
-        return new Vector4D<>(done, doneCols, rows, remaining);
+        return new Vector5D<>(done, doneCols, rows, remaining, rem);
     }
 
-    public static Smith smith(Vector4D<Integer, int[], SparseVector[], ArrayList<SparseVector>> boundary, boolean print) {
+    public static Smith smith(Vector5D<Integer, int[], SparseVector[], SparseVector[], Integer> boundary, boolean print) {
         int done = boundary.x;
         int[] doneCols = boundary.y;
         SparseVector[] rows = boundary.z;
-        SparseVector[] matrix = new SparseVector[boundary.w.size()];
+        SparseVector[] matrix = new SparseVector[boundary.v];
         int n = matrix.length;
-        for(int i = 0; i < boundary.w.size(); i++) {
-            if(boundary.w.get(i).occupation == 0) {
+        for(int i = 0; i < boundary.v; i++) {
+            if(boundary.w[i].occupation == 0) {
                 n--;
             }else {
-                matrix[i - (matrix.length - n)] = boundary.w.get(i);
+                matrix[i - (matrix.length - n)] = boundary.w[i];
             }
         }
         System.out.println(matrix.length);
 
         Smith smith = new Smith(16);
-        smith.addTo(1, done);
+        smith.addTo(BigInteger.ONE, done);
+        Indexer idx = new Indexer(n);
         for(int t = 0; t < n; t++) {
-            Indexer idx = new Indexer(n-t);
+            if(t > 0 && t%100 == 0) System.gc();
+            idx.empty();
 
             if(print) {
                 System.out.println("Prepare " + t + ":");
@@ -283,7 +304,7 @@ public class Simplicial {
                     int h = 0; // h is index of indexer, where k lays.
                     for(int l = 0; l < idx.occupation; l++) {
                         int i = idx.indices[l];
-                        if (k < 0 || Math.abs(matrix[k].values[0]) > Math.abs(matrix[i].values[0])) {
+                        if (k < 0 || matrix[k].values[0].abs().compareTo(matrix[i].values[0].abs()) > 0) {
                             k = i;
                             h = l;
                         }
@@ -299,8 +320,8 @@ public class Simplicial {
                     Indexer nextIdx = new Indexer(idx.indices.length - 1);
                     for(int l = 0; l < idx.occupation; l++) {
                         int i = idx.indices[l];
-                        int lambda = matrix[i].values[0] / matrix[t].values[0];
-                        matrix[i].add(matrix[t], - lambda);
+                        BigInteger lambda = matrix[i].values[0].divide(matrix[t].values[0]);
+                        matrix[i].add(matrix[t], lambda.multiply(BigInteger.valueOf(-1)));
 //                        if(matrix[i].occupation == 0) {
 //                            SparseVector N = matrix[--n];
 //                            matrix[n + 1] = matrix[i];
@@ -329,24 +350,24 @@ public class Simplicial {
 
                 }else {
                     for(int i = 1; i < matrix[t].occupation; i++) {
-                        matrix[t].values[i] %= matrix[t].values[0];
-                        if(matrix[t].values[i] == 0) {
+                        matrix[t].values[i] = matrix[t].values[i].remainder(matrix[t].values[0]);
+                        if(matrix[t].values[i].equals(BigInteger.ZERO)) {
                             matrix[t].remove(i);
                             i--;
                         }
                     }
                     if(matrix[t].occupation == 1) {
-                        smith.addTo(Math.abs(matrix[t].values[0]), 1);
+                        smith.addTo(matrix[t].values[0].abs(), 1);
                         break;
                     }else {
                         int k = -1;
                         for(int i = 0; i < matrix[t].occupation; i++) {
-                            if(k < 0 || Math.abs(matrix[t].values[k]) > Math.abs(matrix[t].values[i])) {
+                            if(k < 0 || matrix[t].values[k].abs().compareTo(matrix[t].values[i].abs()) > 0) {
                                 k = i;
                             }
                         }
                         // because occupation > 1 and for every h: matrix[t].values[h] < matrix[t].values[0], k != 0.
-                        int curr = matrix[t].values[0];
+                        BigInteger curr = matrix[t].values[0];
                         matrix[t].values[0] = matrix[t].values[k];
                         matrix[t].values[k] = curr;
                         for(int i = t + 1; i < n; i++) {
@@ -671,18 +692,6 @@ public class Simplicial {
                 return 1;
             }
             return -1;
-        }
-    }
-
-    public static class FirstElementSorter implements Comparator<SparseVector> {
-        public int compare(SparseVector a, SparseVector b) {
-            if(a.getFirstIndex() != b.getFirstIndex()) {
-                return a.getFirstIndex() - b.getFirstIndex();
-            }else if(a.getFirstValue() != b.getFirstValue()){
-                return a.getFirstValue() - b.getFirstValue();
-            }else {
-                return a.occupation - b.occupation;
-            }
         }
     }
 
