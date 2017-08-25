@@ -39,6 +39,17 @@ public class Utils {
         return new Vector2D<>(x, alpha);
     }
 
+    public static int next_power_of_two(int x) {
+        x--;
+        x |= x >> 1;
+        x |= x >> 2;
+        x |= x >> 4;
+        x |= x >> 8;
+        x |= x >> 16;
+        x++;
+        return x;
+    }
+
     public static Vector2D<Integer, int[]> gcd(int[] values) {
         return gcd(values, values.length);
     }

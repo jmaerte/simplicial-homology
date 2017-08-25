@@ -67,6 +67,33 @@ public class Bignum {
         length = i;
     }
 
+    private static int[] karatsuba(int[] a, int[] b, int alen, int blen) {
+        int k = Utils.next_power_of_two(Math.max(alen, blen));
+        int offset = Math.max(k - alen, k - blen); // We know: offset < n/2.
+        if(a.length < k) {
+            int[] temp = new int[k];
+            System.arraycopy(a, 0, temp, 0, alen);
+            a = temp;
+        }
+        if(b.length < k) {
+            int[] temp = new int[k];
+            System.arraycopy(b, 0, temp, 0, blen);
+            b = temp;
+        }
+        int[] _x = new int[k/2];
+        int[] _y = new int[k/2];
+        int[] __x = new int[k/2];
+        int[] __y = new int[k/2];
+        System.arraycopy(a, k/2, _x, 0, k/2);
+        System.arraycopy(b, k/2, _y, 0, k/2);
+        System.arraycopy(a, 0, __x, 0, k/2);
+        System.arraycopy(b, 0, __y, 0, k/2);
+
+    }
+    private static int[] karatsuba(int[] a, int[] b, int offset, int n) {
+
+    }
+
     public void subArray(int[] arr, int occupation) {
         if(occupation > digits.length) {
             mkPlace(occupation);
@@ -86,8 +113,11 @@ public class Bignum {
         length = Math.max(i, length);
     }
 
-    private void add(int[] dig, int length) {
+    private void add(Bignum that) {
+        if(this.sign == that.sign) addArray(that.digits, that.length);
+        else if(this.sign != that.sign) {
 
+        }
     }
 
     private void sub(int[] dig, int length) {
