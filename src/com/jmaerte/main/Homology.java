@@ -5,9 +5,6 @@ import com.jmaerte.io.Logger;
 import com.jmaerte.simplicial.Simplicial;
 import com.jmaerte.simplicial.util.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-
 /**
  * Created by Julian on 17/06/2017.
  */
