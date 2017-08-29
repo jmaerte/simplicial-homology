@@ -216,37 +216,6 @@ public class SparseVector implements Comparable<SparseVector> {
         return s;
     }
 
-    public SparseIterator iterator() {
-        return new SparseIterator(this);
-    }
-
-    private class SparseIterator implements Iterator<Integer> {
-
-        SparseVector vector;
-        int i = 0;
-
-        public SparseIterator(SparseVector vector) {
-            this.vector = vector;
-        }
-
-        public boolean hasNext() {
-            return i < vector.occupation;
-        }
-
-        public Integer next() {
-            i++;
-            return vector.values[i-1];
-        }
-
-        public int index() {
-            return indices[i-1];
-        }
-    }
-
-    public Vector2D<Integer, int[]> gcd() {
-        return Utils.gcd(values, occupation);
-    }
-
     /** linear combinates two vectors.
      *
      * @param a scalar for v

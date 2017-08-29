@@ -609,19 +609,6 @@ public class Simplicial {
 //        return resultArr;
     }
 
-    public int binarySearch(ArrayList<Integer> arr, int i, int max) {
-        if(max == 0 || max >= arr.size() || i > arr.get(max - 1)) return max;
-        int left = 0;
-        int right = max;
-        while(left < right) {
-            int mid = (left + right) / 2;
-            if(arr.get(mid) > i) right = mid;
-            else if(arr.get(mid) < i) left = mid + 1;
-            else return mid;
-        }
-        return left;
-    }
-
     public int binarySearch(int[] arr, int i, int max) {
         return binarySearch(arr, i, 0, max);
     }
@@ -671,18 +658,6 @@ public class Simplicial {
                 return 1;
             }
             return -1;
-        }
-    }
-
-    public static class FirstElementSorter implements Comparator<SparseVector> {
-        public int compare(SparseVector a, SparseVector b) {
-            if(a.getFirstIndex() != b.getFirstIndex()) {
-                return a.getFirstIndex() - b.getFirstIndex();
-            }else if(a.getFirstValue() != b.getFirstValue()){
-                return a.getFirstValue() - b.getFirstValue();
-            }else {
-                return a.occupation - b.occupation;
-            }
         }
     }
 
