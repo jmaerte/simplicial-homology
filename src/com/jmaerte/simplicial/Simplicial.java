@@ -124,6 +124,7 @@ public class Simplicial {
 //        }
 
         for(int i = 0; i < higher.size(); i++) {
+            if(i % 500 == 0) System.out.print(Colors.RED_BOLD + "Generating boundary matrices " + Colors.RESET + Colors.CYAN + "" + i + "/" + higher.size() + " rows done!" + Colors.RESET + "\r");
 //            if(printProgress) System.out.print('\r' + "Progressing row " + i + "/" + higher.size());
             if(i > 0 && i%1000 == 0) System.gc();
             int[] data = higher.get(i).data;
@@ -240,8 +241,6 @@ public class Simplicial {
 //                }
 //            }
 //        }
-        System.out.println(done);
-        System.out.println(zeros);
         return new Vector5D<>(done, doneCols, rows, remaining, rem);
     }
 
@@ -258,12 +257,12 @@ public class Simplicial {
                 matrix[i - (matrix.length - n)] = boundary.w[i];
             }
         }
-        System.out.println(matrix.length);
 
         Smith smith = new Smith(16);
         smith.addTo(BigInteger.ONE, done);
         Indexer idx = new Indexer(n);
         for(int t = 0; t < n; t++) {
+            if(t % 100 == 0) System.out.print(Colors.RED_BOLD + "Calculating smith normal form " + Colors.RESET + Colors.CYAN + "" + (t + done) + "/" + (n + done) + " rows done!" + Colors.RESET + "\r");
             if(t > 0 && t%100 == 0) System.gc();
             idx.empty();
 
@@ -400,6 +399,8 @@ public class Simplicial {
                 }
             }
         }
+        System.out.println(Colors.RED_BOLD + "Calculating smith normal form " + Colors.RESET + Colors.CYAN + "" + (n + done) + "/" + (n + done) + " rows done!" + Colors.RESET + "\r");
+        System.out.println(Colors.PURPLE + "-- DONE! --" + Colors.RESET);
         return smith;
 
         // ALGORITHM OLD:
