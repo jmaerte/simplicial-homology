@@ -113,11 +113,11 @@ public class Simplicial {
         int[] doneCols = new int[higher.size()];
         SparseVector[] rows = new SparseVector[doneCols.length];
         int done = 0;
-        int zeros = 0;
 
         for(int i = 0; i < higher.size(); i++) {
+            if(i % 500 == 0) System.out.print(Colors.YELLOW_BACKGROUND + "Generating boundary matrices" + Colors.RESET + Colors.CYAN + "" + i + "/" + higher.size() + " rows done!" + Colors.RESET + "\r");
             int[] data = higher.get(i).data;
-            SparseVector vector = new SparseVector(lower.size(), data.length);
+            SparseVector vector = new SparseVector(lower.size(), Math.min(lower.size(), 10 *data.length));
             for(int l = 0; l < data.length; l++) {
                 int[] element = new int[data.length - 1];
                 for(int k = 0; k < data.length; k++) {
@@ -145,6 +145,7 @@ public class Simplicial {
                 System.arraycopy(rows, p, rows, p + 1, done - p);
                 rows[p] = vector;
                 for(SparseVector v : remaining) {
+                    // TODO: Bloomfilter.
                     int j = v.index(vector.indices[0]);
                     if(j < v.occupation && v.indices[j] == vector.indices[0]) {
                         v.add(vector, - v.values[j] * vector.values[0]);
@@ -221,8 +222,6 @@ public class Simplicial {
 //                }
 //            }
 //        }
-        System.out.println(done);
-        System.out.println(zeros);
         return new Vector4D<>(done, doneCols, rows, remaining);
     }
 
@@ -239,11 +238,11 @@ public class Simplicial {
                 matrix[i - (matrix.length - n)] = boundary.w.get(i);
             }
         }
-        System.out.println(matrix.length);
 
         Smith smith = new Smith(16);
         smith.addTo(1, done);
         for(int t = 0; t < n; t++) {
+            if(t % 100 == 0) System.out.print(Colors.YELLOW_BACKGROUND + "Calculating smith normal form" + Colors.RESET + Colors.CYAN + "" + (t + done) + "/" + (n + done) + " rows done!" + Colors.RESET + "\r");
             Indexer idx = new Indexer(n-t);
 
             if(print) {
@@ -379,6 +378,7 @@ public class Simplicial {
                 }
             }
         }
+        System.out.println(Colors.PURPLE + "-- DONE! --" + Colors.RESET);
         return smith;
 
         // ALGORITHM OLD:

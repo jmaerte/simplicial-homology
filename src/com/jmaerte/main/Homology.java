@@ -1,12 +1,8 @@
 package com.jmaerte.main;
 
 import com.jmaerte.io.IO;
-import com.jmaerte.io.Logger;
 import com.jmaerte.simplicial.Simplicial;
 import com.jmaerte.simplicial.util.*;
-
-import java.util.ArrayList;
-import java.util.Collections;
 
 /**
  * Created by Julian on 17/06/2017.
@@ -14,9 +10,9 @@ import java.util.Collections;
 public class Homology {
 
     public static final String HELP = "Following Arguments can be given to the program call:\n" +
-            "+--------------+-----------------------------------------+\n" +
+            "+==============+=========================================+\n" +
             "|    Option    |               Description               |\n" +
-            "+--------------+-----------------------------------------+\n" +
+            "+==============+=========================================+\n" +
             "| --help       | Shows this menu                         |\n" +
             "+--------------+-----------------------------------------+\n" +
             "| -L [path]    | Turns on the logging option where       |\n" +
@@ -25,9 +21,9 @@ public class Homology {
             "| -C [path]    | Specifies where to read the complex     |\n" +
             "|              | from                                    |\n" +
             "+--------------+-----------------------------------------+\n" +
-            "| --BI         | Turns on BigInteger usage               |\n" +
-            "+--------------+-----------------------------------------+" +
-            "";
+            "| --S          | Shows smith normal form instead of      |\n" +
+            "|              | homology groups.                        |\n" +
+            "+==============+=========================================+";
 
     public static Homology INSTANCE;
 
@@ -38,7 +34,6 @@ public class Homology {
     public String name = "",
             outputPath,
             path;
-    public Logger logger;
 
     public Homology(String[] args) {
 
@@ -188,7 +183,6 @@ public class Homology {
         // int[][] arr = IO.loadArrayFromFile("C:\\Users\\Julian\\Desktop\\chess77.txt", '[', ']', ',');
         Complex c = IO.loadComplexFromFile(path, '[', ']', ',', isName);
         name = c.name;
-        logger = new Logger(outputPath + "\\" + name + ".hom", true, isLog);
         long ms = System.currentTimeMillis();
         Simplicial simpl = new Simplicial(c);
 
