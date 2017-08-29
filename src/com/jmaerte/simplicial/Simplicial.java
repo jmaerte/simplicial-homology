@@ -115,7 +115,7 @@ public class Simplicial {
         int done = 0;
 
         for(int i = 0; i < higher.size(); i++) {
-            if(i % 500 == 0) System.out.print(Colors.YELLOW_BACKGROUND + "Generating boundary matrices" + Colors.RESET + Colors.CYAN + "" + i + "/" + higher.size() + " rows done!" + Colors.RESET + "\r");
+            if(i % 500 == 0) System.out.print(Colors.RED_BOLD + "Generating boundary matrices " + Colors.RESET + Colors.CYAN + "" + i + "/" + higher.size() + " rows done!" + Colors.RESET + "\r");
             int[] data = higher.get(i).data;
             SparseVector vector = new SparseVector(lower.size(), Math.min(lower.size(), 10 *data.length));
             for(int l = 0; l < data.length; l++) {
@@ -242,7 +242,7 @@ public class Simplicial {
         Smith smith = new Smith(16);
         smith.addTo(1, done);
         for(int t = 0; t < n; t++) {
-            if(t % 100 == 0) System.out.print(Colors.YELLOW_BACKGROUND + "Calculating smith normal form" + Colors.RESET + Colors.CYAN + "" + (t + done) + "/" + (n + done) + " rows done!" + Colors.RESET + "\r");
+            if(t % 100 == 0) System.out.print(Colors.RED_BOLD + "Calculating smith normal form " + Colors.RESET + Colors.CYAN + "" + (t + done) + "/" + (n + done) + " rows done!" + Colors.RESET + "\r");
             Indexer idx = new Indexer(n-t);
 
             if(print) {
@@ -378,6 +378,7 @@ public class Simplicial {
                 }
             }
         }
+        System.out.println(Colors.RED_BOLD + "Calculating smith normal form " + Colors.RESET + Colors.CYAN + "" + (n + done) + "/" + (n + done) + " rows done!" + Colors.RESET + "\r");
         System.out.println(Colors.PURPLE + "-- DONE! --" + Colors.RESET);
         return smith;
 
