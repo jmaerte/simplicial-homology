@@ -4,6 +4,7 @@
 3. [How it works](#work)
 4. [Core Algorithm(Smith Normalform)](#core)
 5. [Commands](#cmds)
+6. [Wishlist](#wl)
 
 ## Input <a name="input"></a>
 The program takes a file input. The file should contain a name for the complex and the supersets of it.
@@ -48,3 +49,5 @@ For initializing a program argument one needs to type -<command> <parameters> af
 | ------------- | ------------- |
 | **C** *path*:**string**\* | C: Complex. This command determines the file, where to take the complex data from.<br> NOTE: If your path contains spaces, please set double quotation marks ". |
 ### Flags
+## Wishlist <a name="wl"></a>
+Set home file: The home file will be a file in which the program logs the already calculated homologies.
