@@ -56,6 +56,9 @@ public class Simplicial {
         cache[0] = new SetList<>();
         cache[0].add(new Wrapper(new int[]{}));
         cache[1] = new SetList<>();
+        int fi = 1;
+
+        String homology = "[";
 
         // Dimension is k-1
         for(int k = 1; k <= maxSize; k++) {
@@ -66,10 +69,14 @@ public class Simplicial {
             Smith currSmith = smith(boundary(cache[0], cache[1]), false);
             System.out.println(currSmith);
             smithCache[1] = currSmith;
+            homology += Smith.calculateHom(fi, smithCache) + (k == maxSize ? "" : ", ");
             cache[0] = cache[1];
             smithCache[0] = smithCache[1];
             cache[1] = new SetList<>();
+            fi = cache[0].size();
         }
+        homology += "]";
+        System.out.println(homology);
 
         System.out.println("Calculation of simplex homology groups took " + (System.currentTimeMillis() - ms) + "ms");
     }

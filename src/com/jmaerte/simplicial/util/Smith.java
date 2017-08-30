@@ -5,6 +5,7 @@ public class Smith {
     int[] amount;
     int[] values;
     int occupation;
+    int rank;
 
     public Smith(int initialCapacity) {
         amount = new int[initialCapacity];
@@ -19,6 +20,7 @@ public class Smith {
         }else {
             insert(k, value, count);
         }
+        rank += count;
     }
 
     public void insert(int k, int value, int count) {
@@ -67,5 +69,17 @@ public class Smith {
             s += values[i] + ": " + amount[i] + ((i == occupation - 1) ? "" : ", ");
         }
         return s + "]";
+    }
+
+    public static String calculateHom(int fi, Smith[] cache) {
+        if(cache.length < 2) return "";
+        int rank = fi - cache[0].rank;
+        String s = "";
+        for(int k = 0; k < cache[1].occupation; k++) {
+            if(cache[1].values[k] == 1) continue;
+            s += (s == "" ? "" : " + ") + "Z_" + cache[1].values[k] + "^" + cache[1].amount[k];
+        }
+        if(rank - cache[1].rank != 0) s += (s == "" ? "" : " + ") + "Z^" + (rank - cache[1].rank);
+        return s == "" ? "0" : s;
     }
 }
