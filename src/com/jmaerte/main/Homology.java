@@ -4,6 +4,8 @@ import com.jmaerte.io.IO;
 import com.jmaerte.simplicial.Simplicial;
 import com.jmaerte.simplicial.util.*;
 
+import java.math.BigInteger;
+
 /**
  * Created by Julian on 17/06/2017.
  */
@@ -158,6 +160,23 @@ public class Homology {
 //        rows2.add(v23);
 //        System.out.println(Simplicial.smith(new Vector4D<>(0, new int[0], new SparseVector[0], rows2), true));
 //        System.exit(0);
+        long ns1 = 0;
+        long ns2 = 0;
+        Bignum a = new Bignum(1, new int[1], 1);
+        BigInteger b = BigInteger.ZERO;
+        for(int i = 0; i < 100; i++) {
+            long ns = System.nanoTime();
+            a.add(new Bignum(1, new int[]{-1}, 1));
+            ns1 += System.nanoTime()-ns;
+            ns = System.nanoTime();
+            b = b.add(new BigInteger("11111111111111111111111111111111", 2));
+            ns2 += System.nanoTime()-ns;
+        }
+        System.out.println(a);
+        System.out.println(b);
+        System.out.println(ns1);
+        System.out.println(ns2);
+        System.exit(0);
 
         for(int i = 0; i < args.length; i++) {
             if(args[i].length() > 0) {

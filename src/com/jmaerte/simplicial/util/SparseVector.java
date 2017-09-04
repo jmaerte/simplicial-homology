@@ -1,8 +1,5 @@
 package com.jmaerte.simplicial.util;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
 /**
  * Created by Julian on 03/08/2017.
  */
@@ -132,36 +129,30 @@ public class SparseVector implements Comparable<SparseVector> {
      * @param v the vector that shell get added.
      * @param lambda the scalar which the added vector is multiplied.
      */
-    public int add(SparseVector v, int lambda) {
+    public void add(SparseVector v, int lambda) throws Exception {
         int[] ind = new int[Math.min(occupation + v.occupation, length)];
         int[] val = new int[ind.length];
-        boolean trailing = true;
-        int trailingZeros = 0;
         int occ = 0;
         int i = 0;
         for(int j = 0; j < v.occupation; j++) {
             if(i >= occupation) {
-                if(trailing) trailingZeros--;
                 ind[occ] = v.indices[j];
-                val[occ] = lambda * v.values[j];
+                val[occ] = Math.multiplyExact(lambda, v.values[j]);
             }else if(indices[i] < v.indices[j]) {
-                trailing = false;
                 ind[occ] = indices[i];
                 val[occ] = values[i];
                 j--;
                 i++;
             }else if(indices[i] > v.indices[j]) {
-                if(trailing) trailingZeros--;
                 ind[occ] = v.indices[j];
-                val[occ] = lambda * v.values[j];
+                val[occ] = Math.multiplyExact(lambda, v.values[j]);
             }else {
-                if(values[i] + lambda * v.values[j] != 0) {
-                    trailing = false;
+                int x = Math.addExact(values[i], Math.multiplyExact(lambda, v.values[j]));
+                if(x != 0) {
                     ind[occ] = indices[i];
-                    val[occ] = values[i] + lambda * v.values[j];
+                    val[occ] = x;
                     i++;
                 }else {
-                    if(trailing) trailingZeros++;
                     i++;
                     occ--;
                 }
@@ -177,7 +168,6 @@ public class SparseVector implements Comparable<SparseVector> {
         this.indices = ind;
         this.values = val;
         this.occupation = occ;
-        return trailingZeros;
     }
 
     public int get(int i) {
