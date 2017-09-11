@@ -35,10 +35,7 @@ The long runtimes on bigger examples are mainly due to this algorithm, therefore
 **Input**: Matrix with arbitrary structure.<br>
 **Output**: invariant factors of input matrix.<br>
 ### Approach 1: GCD
-First i was thinking, that the runtime of this algorithm was determined through how much time it takes, to eliminate one column of my matrix, not matter what.<br>
-So i came up with the idea, to consider one index i running from the first to the last row in the matrix, swapping rows, so you get a non-zero entry at position (i,j<sub>i</sub>), where j<sub>i</sub> is the minimal index of columns, that have a non-zero entry with row-index greater or equal i.<br>
-Having this, we can now eliminate the rest of the column. So let A be the set of all row-indices with a non-zero entry in column j<sub>i</sub>, that are greater or equal i. Now, using the gcd approach, for every k in A one would calculate the gcd of the Elements at position (i,j<sub>i</sub>), namely a, and (k,j<sub>i</sub>), namely b. Let g be the value of gcd(a,b). Using the Lemma of Bezout, we know, that we can also find alpha and beta in Z, such that g = alpha * a + beta * b. Having this, we would then need to substitute row i through alpha * row i + beta * row k, to produce g at place j<sub>i</sub> in this new row. This is place (i,j<sub>i</sub>). Therefore we got would've gotten g at our pivot-position. But it's not that easy. We always need to make sure our executed operation on the matrix are invertible over Z. Looking at the matrix (meaning the matrix, that you multiply on the left side, to execute row additions) of our operation, one will find, that the determinant of this is alpha, what not necessarily equals plus or minus 1.<br>
-Therefore we need to regard a side effect. If we set x = b / g and y = a / g, we can while substituting row i through alpha * row i + beta * row k, also substitute row k through y * row k - x * row i. The left-multiplication matrix of this operation would've the following shape:
+<iframe width="800" height="600" src="https://www.docdroid.net/a8pirOS/gcd-approach.pdf" frameborder="0" allowtransparency allowfullscreen></iframe>
 
 ## Commands <a name="cmd"></a>
 ### Program arguments
