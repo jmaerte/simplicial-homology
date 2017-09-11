@@ -4,7 +4,6 @@
 3. [How it works](#work)
 4. [Core Algorithm(Smith Normalform)](#core)
 5. [Commands](#cmds)
-6. [Wishlist](#wl)
 
 ## Input <a name="input"></a>
 The program takes a file input. The file should contain a name for the complex and the supersets of it.
@@ -37,7 +36,7 @@ The long runtimes on bigger examples are mainly due to this algorithm, therefore
 ### Approach 1: GCD
 You can read about gcd based smith normal form algorithm and its problems <a href="http://docdro.id/a8pirOS">here</a>.
 ### Approach 2: Modulo
-This is the (for now) final algorithm I used in code. It is described <a href="">here</a>.
+This is the (for now) final algorithm I used in code. It is described <a href="http://docdro.id/Dbv2XcQ">here</a>.
 ## Commands <a name="cmd"></a>
 ### Program arguments
 For initializing a program argument one needs to type -<command> <parameters> after the program call in command line.<br>
@@ -47,5 +46,3 @@ For initializing a program argument one needs to type -<command> <parameters> af
 | ------------- | ------------- |
 | **C** *path*:**string**\* | C: Complex. This command determines the file, where to take the complex data from.<br> NOTE: If your path contains spaces, please set double quotation marks ". |
 ### Flags
-## Wishlist <a name="wl"></a>
-Set home file: The home file will be a file in which the program logs the already calculated homologies.
