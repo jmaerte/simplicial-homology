@@ -34,9 +34,9 @@ The long runtimes on bigger examples are mainly due to this algorithm, therefore
 **Input**: Matrix with arbitrary structure.<br>
 **Output**: invariant factors of input matrix.<br>
 ### Approach 1: GCD
-You can read about gcd based smith normal form algorithm and its problems [here](http://docdro.id/a8pirOS){:target="_blank"}.
+You can read about gcd based smith normal form algorithm and its problems [here](http://docdro.id/a8pirOS).
 ### Approach 2: Modulo
-This is the (for now) final algorithm I used in code. It is described [here](http://docdro.id/Dbv2XcQ){:target="_blank"}.
+This is the (for now) final algorithm I used in code. It is described [here](http://docdro.id/Dbv2XcQ).
 ## Commands <a name="cmd"></a>
 ### Program arguments
 For initializing a program argument one needs to type -<command> <parameters> after the program call in command line.<br>
