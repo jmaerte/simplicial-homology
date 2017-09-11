@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="jansi-1.16">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/lib/jansi-1.16.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>
