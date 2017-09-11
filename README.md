@@ -30,7 +30,7 @@ Second: The current vector has no trailing invertible (equivalently: the absolut
 While processing the matrix, we count how many vector has been added to the trailing invertible vectors. That is how many 1s we will certainly get in the smith normal form of our boundary matrix.<br>
 After this first processing we go to the [Core Algorithm](#core) with our remaining matrix, because through the row echelon form, we can just eliminate the rows, which have a trailing invertible, columnwise and get the identity matrix in the top-left block of our smith normal form. The top-right and top-left blocks are 0 by definition of the smith normal form. The bottom-right block will become the smith normal form of the remaining matrix.<br>
 ## Core Algorithm(Smith Normalform) <a name="core"></a>
-The long runtimes on bigger examples are mainly due to this algorithm, therefore i will state two approaches, that i had while working out this algorithm.
+The long runtimes on bigger examples are mainly due to this algorithm, therefore i will state two approaches, that i considered while working out this algorithm.
 ### Proceeding
 **Input**: Matrix with arbitrary structure.<br>
 **Output**: invariant factors of input matrix.<br>
