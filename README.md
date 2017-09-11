@@ -35,7 +35,9 @@ The long runtimes on bigger examples are mainly due to this algorithm, therefore
 **Input**: Matrix with arbitrary structure.<br>
 **Output**: invariant factors of input matrix.<br>
 ### Approach 1: GCD
+```HTML
 <iframe width="800" height="600" src="https://www.docdroid.net/a8pirOS/gcd-approach.pdf" frameborder="0" allowtransparency allowfullscreen></iframe>
+```
 
 ## Commands <a name="cmd"></a>
 ### Program arguments
