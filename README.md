@@ -15,7 +15,7 @@ The program constructs a chain complex through defining C<sub>k</sub> as the set
 One says, that C<sub>k</sub> has dimension k. F.e. C<sub>-1</sub> = {Ø} is of dimension -1.<br>
 Further we define boundary maps ∂<sub>k</sub>: C<sub>k</sub> -> C<sub>k-1</sub> (thus we will get homology and not cohomology groups later on) through the following mapping rule:<br>
 Let A={a<sub>0</sub>,...,a<sub>k</sub>} be an element of C<sub>k</sub>, then we formally consider e<sub>A</sub> a basis element of an ![equation](https://latex.codecogs.com/gif.latex?%5Cmathbb%7BR%7D)-Vector space.<br>
-Since we want ![equation](https://latex.codecogs.com/gif.latex?%5Cpartial_k%20%5Ccirc%20%5Cpartial_%7Bk&plus;1%7D%20%3D%200) for every k > 0, we will set<br>
+Since we want ![equation](https://latex.codecogs.com/gif.latex?%5Cpartial_k%20%5Ccirc%20%5Cpartial_%7Bk&plus;1%7D%20%3D%200) for every k, we will set<br>
 ![equation](http://latex.codecogs.com/gif.latex?%5Cpartial_k%28e_A%29%20%3D%20%5Csum_%7Bi%20%3D%200%7D%5Ek%20%7B%28-1%29%5Ei%20e_%7BA%5Csetminus%5C%7Ba_i%5C%7D%7D%7D)
 <br>
 Furthermore we then define the k-th homology group as ![equation](http://latex.codecogs.com/gif.latex?H_k%28C%29%20%3D%20%7Bker%7E%5Cpartial_k%7D/%7Bim%7E%5Cpartial_%7Bk&plus;1%7D%7D), what is welldefined because of the subset relation:<br> ![equation](https://latex.codecogs.com/gif.latex?im%20%7E%20%5Cpartial_%7Bk&plus;1%7D%20%5Csubset%20ker%20%7E%20%5Cpartial_k)<br>
