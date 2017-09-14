@@ -37,7 +37,7 @@ The long runtimes on bigger examples are mainly due to this algorithm, therefore
 You can read about gcd based smith normal form algorithm and its problems [here](http://docdro.id/a8pirOS).
 ### Approach 2: Modulo
 This is the (for now) final algorithm I used in code. It is described [here](http://docdro.id/Dbv2XcQ).
-## Commands <a name="cmd"></a>
+## Commands <a name="cmds"></a>
 ### Program arguments
 For initializing a program argument one needs to type -<command> <parameters> after the program call in command line.<br>
 (Star after argument marks that it is necessary)
