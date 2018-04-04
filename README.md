@@ -12,9 +12,9 @@ C := [[1,2,3], [4]].<br>
 The program will then generate all subsets of the 'supersets' itself.
 ## Output <a name="output"></a>
 The program constructs a chain complex through defining C<sub>k</sub> as the set of all sets contained by the simplicial complex C with magnitude k+1.<br>
-One says, that C<sub>k</sub> has dimension k. F.e. C<sub>-1</sub> = {Ø} is of dimension -1.<br>
+One says, that the elements of C<sub>k</sub> have dimension k. F.e. C<sub>-1</sub> = {Ø} just contains the empty set of dimension -1.<br>
 Further we define boundary maps ∂<sub>k</sub>: C<sub>k</sub> -> C<sub>k-1</sub> (thus we will get homology and not cohomology groups later on) through the following mapping rule:<br>
-Let A={a<sub>0</sub>,...,a<sub>k</sub>} be an element of C<sub>k</sub>, then we formally consider e<sub>A</sub> a basis element of an ![equation](https://latex.codecogs.com/gif.latex?%5Cmathbb%7BR%7D)-Vector space.<br>
+Let A={a<sub>0</sub>,...,a<sub>k</sub>} be an element of C<sub>k</sub>, we formally consider e<sub>A</sub> a basis element of an ![equation](https://latex.codecogs.com/gif.latex?%5Cmathbb%7BZ%7D)-Module.<br>
 Since we want ![equation](https://latex.codecogs.com/gif.latex?%5Cpartial_k%20%5Ccirc%20%5Cpartial_%7Bk&plus;1%7D%20%3D%200) for every k, we will set<br>
 ![equation](http://latex.codecogs.com/gif.latex?%5Cpartial_k%28e_A%29%20%3D%20%5Csum_%7Bi%20%3D%200%7D%5Ek%20%7B%28-1%29%5Ei%20e_%7BA%5Csetminus%5C%7Ba_i%5C%7D%7D%7D)
 <br>
